@@ -3,7 +3,7 @@ import React from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@state/api";
-import { EllipsisVertical, Plus } from "lucide-react";
+import { EllipsisVertical, MessageSquareMore, Plus } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
 
@@ -21,7 +21,7 @@ const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
     error,
   } = useGetTasksQuery({ projectId: Number(id) });
 
-  const [updateTaskStatus]  = useUpdateTaskStatusMutation();
+  const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
   const moveTask = (taskId: number, toStatus: string) => {
     updateTaskStatus({ taskId, status: toStatus });
@@ -38,9 +38,8 @@ const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
             status={status}
             tasks={tasks || []}
             moveTask={moveTask}
-            setIsModalNewTaskOpen={setIsModalNewTaskOpen}
-            className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
-          />
+            setIsModalNewTaskOpen={setIsModalNewTaskOpen}          
+            />
         ))}
       </div>
     </DndProvider>
@@ -77,6 +76,7 @@ const TaskColumn = ({
     Completed: "#000000",
   };
 
+
   return (
     <div
       ref={(instance) => {
@@ -84,9 +84,9 @@ const TaskColumn = ({
       }}
       className={`sl:py-4 rounded-lg py-2 xl:px-2 ${isOver ? "dark-neutral-950 bg-blue-100" : ""}`}
     >
-      <div className="dlex mb-3 w-full">
-        <div
-          className={`w-2 !bg-[${statusColor[status]}] rounded-s-lg`}
+      <div className="flex mb-3 w-full">
+        <div      
+        className={`w-2 !bg-[${statusColor[status]}] rounded-s-lg`}
           style={{ backgroundColor: statusColor[status] }}
         />
         <div className="jusitfy-between dark:bg- flex w-full items-center rounded-e-lg px-5 py-4">
@@ -127,6 +127,7 @@ type TaskProps = {
 };
 
 const Task = ({ task }: TaskProps) => {
+  console.log("🚀 ~ Task ~ task:", task);
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id },
@@ -176,7 +177,7 @@ const Task = ({ task }: TaskProps) => {
     >
       {task.attachments && task.attachments.length > 0 && (
         <Image
-          src={`/${task.attachments[0].fileUrl}`}
+          src={`/${task.attachments[0].fileURL}`}
           alt={task.attachments[0].fileName}
           width={400}
           height={200}
@@ -216,6 +217,42 @@ const Task = ({ task }: TaskProps) => {
         <div className="text-xs text-gray-500 dark:bg-neutral-500">
           {formattedStartDate && <span>{formattedStartDate} - </span>}
           {formattedDueDate && <span>{formattedDueDate}</span>}
+        </div>
+        <p className="text-sm text-gray-600 dark:text-neutral-500">
+          {task.description}
+        </p>
+        <div className="mt-4 border-t border-gray-200 dark:border-stroke-dark" />
+
+        {/* USERS */}
+        <div className="mt-3 flex items-center justify-between">
+          <div className="flex -space-x-[6px] overflow-hidden">
+            {task.assignee && (
+              <Image
+                key={task.assignee.userId}
+                src={`/${task.assignee.profilePictureUrl}`}
+                alt={task.assignee.username}
+                width={30}
+                height={30}
+                className="border-whote h-8 w-8 rounded-full border-2 object-cover dark:border-dark-secondary"
+              />
+            )}
+            {task.author && (
+              <Image
+                key={task.author.userId}
+                src={`/${task.author.profilePictureUrl}`}
+                alt={task.author.username}
+                width={30}
+                height={30}
+                className="border-whote h-8 w-8 rounded-full border-2 object-cover dark:border-dark-secondary"
+              />
+            )}
+          </div>
+          <div className="flex items-center text-gray-500 dark:text-neutral-500">
+            <MessageSquareMore size={20} />
+            <span className="ml-1 text-sm dark:text-neutral-400">
+              {numberOfComments}
+            </span>
+          </div>
         </div>
       </div>
     </div>
