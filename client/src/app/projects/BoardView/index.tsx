@@ -2,7 +2,7 @@ import { useGetTasksQuery, useUpdateTaskStatusMutation } from "@/state/api";
 import React from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Task as TaskType } from "@state/api";
+// import { Task as TaskType } from "@state/api";
 import { EllipsisVertical, MessageSquareMore, Plus } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
@@ -11,6 +11,99 @@ type BoardProps = {
   id: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
+
+interface TaskType {
+  id: number;
+  title: string;
+  description?: string;
+  status?: Status;
+  priority?: Priority;
+  tags?: string;
+  startDate?: string;
+  dueDate?: string;
+  points?: number;
+  projectId: number;
+  authorUserId?: number;
+  assignedUserId?: number;
+
+  author?: User;
+  assignee?: User;
+  comments?: Comment[];
+  attachments?: Attachment[];
+}
+
+//  interface Project {
+//   id: number;
+//   name: string;
+//   description?: string;
+//   startDate?: string;
+//   endDate?: string;
+// }
+
+ enum Priority {
+  Urgent = "Urgent",
+  High = "High",
+  Medium = "Medium",
+  Low = "Low",
+  Backlog = "Backlog",
+}
+
+ enum Status {
+  ToDo = "To Do",
+  WorkInProgress = "Work In Progress",
+  UnderReview = "Under Review",
+  Completed = "Completed",
+}
+
+ interface User {
+  userId?: number;
+  username: string;
+  email: string;
+  profilePictureUrl?: string;
+  cognitoId?: string;
+  teamId?: number;
+}
+
+ interface Attachment {
+  id: number;
+  fileURL: string;
+  fileName: string;
+  taskId: number;
+  uploadedById: number;
+}
+
+ interface Task {
+  id: number;
+  title: string;
+  description?: string;
+  status?: Status;
+  priority?: Priority;
+  tags?: string;
+  startDate?: string;
+  dueDate?: string;
+  points?: number;
+  projectId: number;
+  authorUserId?: number;
+  assignedUserId?: number;
+
+  author?: User;
+  assignee?: User;
+  comments?: Comment[];
+  attachments?: Attachment[];
+}
+
+//  interface SearchResults {
+//   tasks?: Task[];
+//   projects?: Project[];
+//   users?: User[];
+// }
+
+//  interface Team {
+//   teamId: number;
+//   teamName: string;
+//   productOwnerUserId?: number;
+//   projectManagerUserId?: number;
+// }
 
 const taskStatus = ["To Do", "Work In Progress", "Under Review", "Completed"];
 
@@ -62,14 +155,14 @@ const TaskColumn = ({
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
     drop: (item: { id: number }) => moveTask(item.id, status),
-    collect: (monitor: any) => ({
+    collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   }));
 
   const tasksCount = tasks.filter((task) => task.status === status).length;
 
-  const statusColor: any = {
+  const statusColor: Record<string, string> = {
     "To Do": "#2563EB",
     "Work In Progress": "#059669",
     "Under Review": "#D97706",
@@ -131,7 +224,7 @@ const Task = ({ task }: TaskProps) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id },
-    collect: (monitor: any) => ({
+    collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
@@ -189,7 +282,7 @@ const Task = ({ task }: TaskProps) => {
           <div className="flex flex-1 flex-wrap items-center gap-2">
             {task.priority && <PriorityTab priority={task.priority} />}
             <div className="flex gap-2">
-              {taskTagsSplit.map((tag) => (
+              {taskTagsSplit.map((tag: string) => (
                 <div
                   key={tag}
                   className="rounded-full bg-blue-100 px-2 py-1 text-xs"
