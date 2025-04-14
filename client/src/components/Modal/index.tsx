@@ -24,7 +24,7 @@ const Modal = ({ children, isOpen, onClose, name }: Props) => {
                     <X size={18} />
                 </button>
             }
-            isSmalltext
+            isSmallText
             />
             {children}
         </div>

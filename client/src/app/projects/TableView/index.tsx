@@ -80,7 +80,7 @@ const TableView = ({ id,  }: Props) => {
   return (
     <div className="h-[540px] w-full px-4 pb-8 xl:px-6">
       <div className="pt-5">
-        <Header name="Table" isSmalltext />
+        <Header name="Table" isSmallText />
       </div>
       <DataGrid rows={tasks || []} columns={columns}
       className={dataGridClassNames}

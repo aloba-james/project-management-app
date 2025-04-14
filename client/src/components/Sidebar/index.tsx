@@ -1,7 +1,6 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/app/redux";
-import { setIsSidebarCollapsed } from "@/state";
+import { useAppSelector } from "@/app/redux";
 import { useGetProjectsQuery } from "@/state/api";
 import {
   AlertCircle,
@@ -18,7 +17,6 @@ import {
   ShieldAlert,
   User,
   Users,
-  X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,7 +29,6 @@ const Sidebar = () => {
 
   const { data: projects } = useGetProjectsQuery();
   console.log("🚀 ~ Sidebar ~ projects:", projects)
-  const dispatch = useAppDispatch();
   const isSidebarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed
   );
