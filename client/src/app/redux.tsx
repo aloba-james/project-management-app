@@ -9,7 +9,6 @@ import {
 import globalReducer from "@/state";
 import { api } from "@/state/api";
 import { setupListeners } from "@reduxjs/toolkit/query";
-
 import {
   persistStore,
   persistReducer,
@@ -23,16 +22,16 @@ import {
 import { PersistGate } from "redux-persist/integration/react";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
-/* REDUX PERSISTENCE */
+/* SSR-SAFE STORAGE SETUP */
 const createNoopStorage = () => {
   return {
-    getItem(_key: any) {
+    getItem(_key: string): Promise<null> {
       return Promise.resolve(null);
     },
-    setItem(_key: any, value: any) {
+    setItem(_key: string, value: unknown): Promise<unknown> {
       return Promise.resolve(value);
     },
-    removeItem(_key: any) {
+    removeItem(_key: string): Promise<void> {
       return Promise.resolve();
     },
   };
@@ -48,48 +47,58 @@ const persistConfig = {
   storage,
   whitelist: ["global"],
 };
+
+/* REDUCERS */
 const rootReducer = combineReducers({
   global: globalReducer,
   [api.reducerPath]: api.reducer,
 });
+
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-/* REDUX STORE */
-export const makeStore = () => {
-  return configureStore({
+/* STORE CREATION */
+export const makeStore = () =>
+  configureStore({
     reducer: persistedReducer,
-    middleware: (getDefault) =>
-      getDefault({
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
         serializableCheck: {
           ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
       }).concat(api.middleware),
   });
-};
 
-/* REDUX TYPES */
-export type AppStore = ReturnType<typeof makeStore>;
+const store = makeStore();
+setupListeners(store.dispatch);
+export { store };
+
+
+/* TYPES */
+export type AppStore = typeof store;
 export type RootState = ReturnType<AppStore["getState"]>;
 export type AppDispatch = AppStore["dispatch"];
+
+
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-/* PROVIDER */
+/* PROVIDER COMPONENT */
 export default function StoreProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const storeRef = useRef<AppStore>();
+  const persistorRef = useRef<ReturnType<typeof persistStore>>();
+
   if (!storeRef.current) {
     storeRef.current = makeStore();
-    setupListeners(storeRef.current.dispatch);
+    persistorRef.current = persistStore(storeRef.current);
   }
-  const persistor = persistStore(storeRef.current);
 
   return (
     <Provider store={storeRef.current}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={null} persistor={persistorRef.current!}>
         {children}
       </PersistGate>
     </Provider>

@@ -15,6 +15,7 @@ const Project = ({ params }: Props) => {
   const { id } = params;
   const [activeTab, setActiveTab] = useState("Board");
   const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
+  console.log("🚀 ~ Project ~ isModalNewTaskOpen:", isModalNewTaskOpen)
 
   return (
     <div>

@@ -1,5 +1,4 @@
-import Image from "next/image";
-import ProjectHeader from "./projects/ProjectHeader";
+
 import Project from "./projects/[id]/page";
 
 export default function Home() {
