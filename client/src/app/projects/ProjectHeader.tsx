@@ -18,6 +18,7 @@ import React, { useState } from "react";
 import ModalNewProject from "./ModalNewProject";
 import ModalProjectTeams from "./ModalProjectTeams";
 import { useGetProjectsQuery } from "@/state/api";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 
 type Props = {
   activeTab: string;
@@ -28,7 +29,10 @@ type Props = {
 const ProjectHeader = ({ activeTab, setActiveTab, projectId }: Props) => {
   const [isModalNewProjectOpen, setIsModalNewProjectOpen] = useState(false);
   const [isTeamsModalOpen, setIsTeamsModalOpen] = useState(false);
-  const { data: projects } = useGetProjectsQuery();
+  const activeWorkspaceId = useWorkspaceStore((s) => s.activeWorkspaceId);
+  const { data: projects } = useGetProjectsQuery(
+    activeWorkspaceId ? { workspaceId: activeWorkspaceId } : undefined,
+  );
   const project = projects?.find(
     (item) => String(item.id) === String(projectId),
   );
@@ -66,7 +70,7 @@ const ProjectHeader = ({ activeTab, setActiveTab, projectId }: Props) => {
                 onClick={() => setIsModalNewProjectOpen(true)}
               >
                 <PlusSquare className="h-4 w-4" />
-                New Boards
+                New Project
               </Button>
             </div>
           }

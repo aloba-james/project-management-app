@@ -380,6 +380,8 @@ model Project {
   workspace    Workspace?    @relation(fields: [workspaceId], references: [id])
   tasks        Task[]
   projectTeams ProjectTeam[]
+  /// Reverse link: Flox project that owns this task board
+  floxProject  FloxProject?
 }
 
 model ProjectTeam {
@@ -485,38 +487,41 @@ model Workspace {
 }
 
 model FloxProject {
-  id            String            @id @default(uuid())
-  workspaceId   String
-  name          String
-  slug          String
-  description   String?
-  status        ProjectStatus     @default(Draft)
-  priority      ProjectPriority   @default(Medium)
-  visibility    ProjectVisibility @default(Workspace)
-  ownerId       Int
-  projectType   ProjectType       @default(Custom)
-  industry      String?
-  budget        Float?
-  currency      String?           @default("USD")
-  startDate     DateTime?
-  dueDate       DateTime?
-  completedDate DateTime?
-  progress      Int               @default(0)
-  color         String?
-  icon          String?
-  coverImage    String?
-  aiSummary     String?
-  metadata      Json              @default("{}")
-  modules       Json              @default("{\"overview\":true,\"files\":true,\"folders\":true,\"tasks\":true,\"knowledge\":true,\"meetings\":true,\"activity\":true,\"templates\":true,\"members\":true,\"timeline\":true,\"ai\":true,\"settings\":true}")
-  objectId      String?           @unique
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  deletedAt     DateTime?
+  id             String            @id @default(uuid())
+  workspaceId    String
+  name           String
+  slug           String
+  description    String?
+  status         ProjectStatus     @default(Draft)
+  priority       ProjectPriority   @default(Medium)
+  visibility     ProjectVisibility @default(Workspace)
+  ownerId        Int
+  projectType    ProjectType       @default(Custom)
+  industry       String?
+  budget         Float?
+  currency       String?           @default("USD")
+  startDate      DateTime?
+  dueDate        DateTime?
+  completedDate  DateTime?
+  progress       Int               @default(0)
+  color          String?
+  icon           String?
+  coverImage     String?
+  aiSummary      String?
+  metadata       Json              @default("{}")
+  modules        Json              @default("{\"overview\":true,\"files\":true,\"folders\":true,\"tasks\":true,\"knowledge\":true,\"meetings\":true,\"activity\":true,\"templates\":true,\"members\":true,\"timeline\":true,\"ai\":true,\"settings\":true}")
+  objectId       String?           @unique
+  /// Legacy Express task board (Int Project.id) owned by this Flox project
+  boardProjectId Int?              @unique
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
 
-  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  owner     User         @relation("FloxProjectOwner", fields: [ownerId], references: [userId])
-  folders   FloxFolder[]
-  files     FloxFile[]
+  workspace    Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner        User         @relation("FloxProjectOwner", fields: [ownerId], references: [userId])
+  boardProject Project?     @relation(fields: [boardProjectId], references: [id], onDelete: SetNull)
+  folders      FloxFolder[]
+  files        FloxFile[]
 
   @@unique([workspaceId, slug])
   @@index([workspaceId])

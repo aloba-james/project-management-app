@@ -47,6 +47,12 @@ export function WorkspaceProjectsSection({ workspaceId }: Props) {
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                     {p.aiSummary || p.description || "No summary yet"}
                   </p>
+                  <Link
+                    href={`/workspaces/${workspaceId}/projects/${p.id}/board`}
+                    className="mt-2 inline-block text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                  >
+                    Open task board
+                  </Link>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge variant="outline">{p.status}</Badge>

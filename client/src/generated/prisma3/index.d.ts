@@ -6680,6 +6680,7 @@ export namespace Prisma {
     workspace?: boolean | Project$workspaceArgs<ExtArgs>
     tasks?: boolean | Project$tasksArgs<ExtArgs>
     projectTeams?: boolean | Project$projectTeamsArgs<ExtArgs>
+    floxProject?: boolean | Project$floxProjectArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
 
@@ -6706,6 +6707,7 @@ export namespace Prisma {
     workspace?: boolean | Project$workspaceArgs<ExtArgs>
     tasks?: boolean | Project$tasksArgs<ExtArgs>
     projectTeams?: boolean | Project$projectTeamsArgs<ExtArgs>
+    floxProject?: boolean | Project$floxProjectArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProjectIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6718,6 +6720,10 @@ export namespace Prisma {
       workspace: Prisma.$WorkspacePayload<ExtArgs> | null
       tasks: Prisma.$TaskPayload<ExtArgs>[]
       projectTeams: Prisma.$ProjectTeamPayload<ExtArgs>[]
+      /**
+       * Reverse link: Flox project that owns this task board
+       */
+      floxProject: Prisma.$FloxProjectPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -7093,6 +7099,7 @@ export namespace Prisma {
     workspace<T extends Project$workspaceArgs<ExtArgs> = {}>(args?: Subset<T, Project$workspaceArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     tasks<T extends Project$tasksArgs<ExtArgs> = {}>(args?: Subset<T, Project$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany"> | Null>
     projectTeams<T extends Project$projectTeamsArgs<ExtArgs> = {}>(args?: Subset<T, Project$projectTeamsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectTeamPayload<ExtArgs>, T, "findMany"> | Null>
+    floxProject<T extends Project$floxProjectArgs<ExtArgs> = {}>(args?: Subset<T, Project$floxProjectArgs<ExtArgs>>): Prisma__FloxProjectClient<$Result.GetResult<Prisma.$FloxProjectPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7498,6 +7505,21 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProjectTeamScalarFieldEnum | ProjectTeamScalarFieldEnum[]
+  }
+
+  /**
+   * Project.floxProject
+   */
+  export type Project$floxProjectArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FloxProject
+     */
+    select?: FloxProjectSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FloxProjectInclude<ExtArgs> | null
+    where?: FloxProjectWhereInput
   }
 
   /**
@@ -14032,12 +14054,14 @@ export namespace Prisma {
     ownerId: number | null
     budget: number | null
     progress: number | null
+    boardProjectId: number | null
   }
 
   export type FloxProjectSumAggregateOutputType = {
     ownerId: number | null
     budget: number | null
     progress: number | null
+    boardProjectId: number | null
   }
 
   export type FloxProjectMinAggregateOutputType = {
@@ -14063,6 +14087,7 @@ export namespace Prisma {
     coverImage: string | null
     aiSummary: string | null
     objectId: string | null
+    boardProjectId: number | null
     createdAt: Date | null
     updatedAt: Date | null
     deletedAt: Date | null
@@ -14091,6 +14116,7 @@ export namespace Prisma {
     coverImage: string | null
     aiSummary: string | null
     objectId: string | null
+    boardProjectId: number | null
     createdAt: Date | null
     updatedAt: Date | null
     deletedAt: Date | null
@@ -14121,6 +14147,7 @@ export namespace Prisma {
     metadata: number
     modules: number
     objectId: number
+    boardProjectId: number
     createdAt: number
     updatedAt: number
     deletedAt: number
@@ -14132,12 +14159,14 @@ export namespace Prisma {
     ownerId?: true
     budget?: true
     progress?: true
+    boardProjectId?: true
   }
 
   export type FloxProjectSumAggregateInputType = {
     ownerId?: true
     budget?: true
     progress?: true
+    boardProjectId?: true
   }
 
   export type FloxProjectMinAggregateInputType = {
@@ -14163,6 +14192,7 @@ export namespace Prisma {
     coverImage?: true
     aiSummary?: true
     objectId?: true
+    boardProjectId?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -14191,6 +14221,7 @@ export namespace Prisma {
     coverImage?: true
     aiSummary?: true
     objectId?: true
+    boardProjectId?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -14221,6 +14252,7 @@ export namespace Prisma {
     metadata?: true
     modules?: true
     objectId?: true
+    boardProjectId?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -14338,6 +14370,7 @@ export namespace Prisma {
     metadata: JsonValue
     modules: JsonValue
     objectId: string | null
+    boardProjectId: number | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -14387,11 +14420,13 @@ export namespace Prisma {
     metadata?: boolean
     modules?: boolean
     objectId?: boolean
+    boardProjectId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
+    boardProject?: boolean | FloxProject$boardProjectArgs<ExtArgs>
     folders?: boolean | FloxProject$foldersArgs<ExtArgs>
     files?: boolean | FloxProject$filesArgs<ExtArgs>
     _count?: boolean | FloxProjectCountOutputTypeDefaultArgs<ExtArgs>
@@ -14422,11 +14457,13 @@ export namespace Prisma {
     metadata?: boolean
     modules?: boolean
     objectId?: boolean
+    boardProjectId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
+    boardProject?: boolean | FloxProject$boardProjectArgs<ExtArgs>
   }, ExtArgs["result"]["floxProject"]>
 
   export type FloxProjectSelectScalar = {
@@ -14454,6 +14491,7 @@ export namespace Prisma {
     metadata?: boolean
     modules?: boolean
     objectId?: boolean
+    boardProjectId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
@@ -14462,6 +14500,7 @@ export namespace Prisma {
   export type FloxProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
+    boardProject?: boolean | FloxProject$boardProjectArgs<ExtArgs>
     folders?: boolean | FloxProject$foldersArgs<ExtArgs>
     files?: boolean | FloxProject$filesArgs<ExtArgs>
     _count?: boolean | FloxProjectCountOutputTypeDefaultArgs<ExtArgs>
@@ -14469,6 +14508,7 @@ export namespace Prisma {
   export type FloxProjectIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
+    boardProject?: boolean | FloxProject$boardProjectArgs<ExtArgs>
   }
 
   export type $FloxProjectPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14476,6 +14516,7 @@ export namespace Prisma {
     objects: {
       workspace: Prisma.$WorkspacePayload<ExtArgs>
       owner: Prisma.$UserPayload<ExtArgs>
+      boardProject: Prisma.$ProjectPayload<ExtArgs> | null
       folders: Prisma.$FloxFolderPayload<ExtArgs>[]
       files: Prisma.$FloxFilePayload<ExtArgs>[]
     }
@@ -14504,6 +14545,10 @@ export namespace Prisma {
       metadata: Prisma.JsonValue
       modules: Prisma.JsonValue
       objectId: string | null
+      /**
+       * Legacy Express task board (Int Project.id) owned by this Flox project
+       */
+      boardProjectId: number | null
       createdAt: Date
       updatedAt: Date
       deletedAt: Date | null
@@ -14873,6 +14918,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     workspace<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     owner<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    boardProject<T extends FloxProject$boardProjectArgs<ExtArgs> = {}>(args?: Subset<T, FloxProject$boardProjectArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     folders<T extends FloxProject$foldersArgs<ExtArgs> = {}>(args?: Subset<T, FloxProject$foldersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FloxFolderPayload<ExtArgs>, T, "findMany"> | Null>
     files<T extends FloxProject$filesArgs<ExtArgs> = {}>(args?: Subset<T, FloxProject$filesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FloxFilePayload<ExtArgs>, T, "findMany"> | Null>
     /**
@@ -14928,6 +14974,7 @@ export namespace Prisma {
     readonly metadata: FieldRef<"FloxProject", 'Json'>
     readonly modules: FieldRef<"FloxProject", 'Json'>
     readonly objectId: FieldRef<"FloxProject", 'String'>
+    readonly boardProjectId: FieldRef<"FloxProject", 'Int'>
     readonly createdAt: FieldRef<"FloxProject", 'DateTime'>
     readonly updatedAt: FieldRef<"FloxProject", 'DateTime'>
     readonly deletedAt: FieldRef<"FloxProject", 'DateTime'>
@@ -15246,6 +15293,21 @@ export namespace Prisma {
      * Filter which FloxProjects to delete
      */
     where?: FloxProjectWhereInput
+  }
+
+  /**
+   * FloxProject.boardProject
+   */
+  export type FloxProject$boardProjectArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Project
+     */
+    select?: ProjectSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectInclude<ExtArgs> | null
+    where?: ProjectWhereInput
   }
 
   /**
@@ -31023,6 +31085,7 @@ export namespace Prisma {
     metadata: 'metadata',
     modules: 'modules',
     objectId: 'objectId',
+    boardProjectId: 'boardProjectId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     deletedAt: 'deletedAt'
@@ -31990,6 +32053,7 @@ export namespace Prisma {
     workspace?: XOR<WorkspaceNullableRelationFilter, WorkspaceWhereInput> | null
     tasks?: TaskListRelationFilter
     projectTeams?: ProjectTeamListRelationFilter
+    floxProject?: XOR<FloxProjectNullableRelationFilter, FloxProjectWhereInput> | null
   }
 
   export type ProjectOrderByWithRelationInput = {
@@ -32002,6 +32066,7 @@ export namespace Prisma {
     workspace?: WorkspaceOrderByWithRelationInput
     tasks?: TaskOrderByRelationAggregateInput
     projectTeams?: ProjectTeamOrderByRelationAggregateInput
+    floxProject?: FloxProjectOrderByWithRelationInput
   }
 
   export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -32017,6 +32082,7 @@ export namespace Prisma {
     workspace?: XOR<WorkspaceNullableRelationFilter, WorkspaceWhereInput> | null
     tasks?: TaskListRelationFilter
     projectTeams?: ProjectTeamListRelationFilter
+    floxProject?: XOR<FloxProjectNullableRelationFilter, FloxProjectWhereInput> | null
   }, "id">
 
   export type ProjectOrderByWithAggregationInput = {
@@ -32567,11 +32633,13 @@ export namespace Prisma {
     metadata?: JsonFilter<"FloxProject">
     modules?: JsonFilter<"FloxProject">
     objectId?: StringNullableFilter<"FloxProject"> | string | null
+    boardProjectId?: IntNullableFilter<"FloxProject"> | number | null
     createdAt?: DateTimeFilter<"FloxProject"> | Date | string
     updatedAt?: DateTimeFilter<"FloxProject"> | Date | string
     deletedAt?: DateTimeNullableFilter<"FloxProject"> | Date | string | null
     workspace?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
     owner?: XOR<UserRelationFilter, UserWhereInput>
+    boardProject?: XOR<ProjectNullableRelationFilter, ProjectWhereInput> | null
     folders?: FloxFolderListRelationFilter
     files?: FloxFileListRelationFilter
   }
@@ -32601,11 +32669,13 @@ export namespace Prisma {
     metadata?: SortOrder
     modules?: SortOrder
     objectId?: SortOrderInput | SortOrder
+    boardProjectId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     workspace?: WorkspaceOrderByWithRelationInput
     owner?: UserOrderByWithRelationInput
+    boardProject?: ProjectOrderByWithRelationInput
     folders?: FloxFolderOrderByRelationAggregateInput
     files?: FloxFileOrderByRelationAggregateInput
   }
@@ -32613,6 +32683,7 @@ export namespace Prisma {
   export type FloxProjectWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     objectId?: string
+    boardProjectId?: number
     workspaceId_slug?: FloxProjectWorkspaceIdSlugCompoundUniqueInput
     AND?: FloxProjectWhereInput | FloxProjectWhereInput[]
     OR?: FloxProjectWhereInput[]
@@ -32644,9 +32715,10 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"FloxProject"> | Date | string | null
     workspace?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
     owner?: XOR<UserRelationFilter, UserWhereInput>
+    boardProject?: XOR<ProjectNullableRelationFilter, ProjectWhereInput> | null
     folders?: FloxFolderListRelationFilter
     files?: FloxFileListRelationFilter
-  }, "id" | "objectId" | "workspaceId_slug">
+  }, "id" | "objectId" | "boardProjectId" | "workspaceId_slug">
 
   export type FloxProjectOrderByWithAggregationInput = {
     id?: SortOrder
@@ -32673,6 +32745,7 @@ export namespace Prisma {
     metadata?: SortOrder
     modules?: SortOrder
     objectId?: SortOrderInput | SortOrder
+    boardProjectId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
@@ -32711,6 +32784,7 @@ export namespace Prisma {
     metadata?: JsonWithAggregatesFilter<"FloxProject">
     modules?: JsonWithAggregatesFilter<"FloxProject">
     objectId?: StringNullableWithAggregatesFilter<"FloxProject"> | string | null
+    boardProjectId?: IntNullableWithAggregatesFilter<"FloxProject"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"FloxProject"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"FloxProject"> | Date | string
     deletedAt?: DateTimeNullableWithAggregatesFilter<"FloxProject"> | Date | string | null
@@ -34449,6 +34523,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutProjectsInput
     tasks?: TaskCreateNestedManyWithoutProjectInput
     projectTeams?: ProjectTeamCreateNestedManyWithoutProjectInput
+    floxProject?: FloxProjectCreateNestedOneWithoutBoardProjectInput
   }
 
   export type ProjectUncheckedCreateInput = {
@@ -34460,6 +34535,7 @@ export namespace Prisma {
     workspaceId?: string | null
     tasks?: TaskUncheckedCreateNestedManyWithoutProjectInput
     projectTeams?: ProjectTeamUncheckedCreateNestedManyWithoutProjectInput
+    floxProject?: FloxProjectUncheckedCreateNestedOneWithoutBoardProjectInput
   }
 
   export type ProjectUpdateInput = {
@@ -34470,6 +34546,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutProjectsNestedInput
     tasks?: TaskUpdateManyWithoutProjectNestedInput
     projectTeams?: ProjectTeamUpdateManyWithoutProjectNestedInput
+    floxProject?: FloxProjectUpdateOneWithoutBoardProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateInput = {
@@ -34481,6 +34558,7 @@ export namespace Prisma {
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     tasks?: TaskUncheckedUpdateManyWithoutProjectNestedInput
     projectTeams?: ProjectTeamUncheckedUpdateManyWithoutProjectNestedInput
+    floxProject?: FloxProjectUncheckedUpdateOneWithoutBoardProjectNestedInput
   }
 
   export type ProjectCreateManyInput = {
@@ -35030,6 +35108,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     workspace: WorkspaceCreateNestedOneWithoutFloxProjectsInput
     owner: UserCreateNestedOneWithoutOwnedFloxProjectsInput
+    boardProject?: ProjectCreateNestedOneWithoutFloxProjectInput
     folders?: FloxFolderCreateNestedManyWithoutProjectInput
     files?: FloxFileCreateNestedManyWithoutProjectInput
   }
@@ -35059,6 +35138,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: string | null
+    boardProjectId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -35094,6 +35174,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     workspace?: WorkspaceUpdateOneRequiredWithoutFloxProjectsNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedFloxProjectsNestedInput
+    boardProject?: ProjectUpdateOneWithoutFloxProjectNestedInput
     folders?: FloxFolderUpdateManyWithoutProjectNestedInput
     files?: FloxFileUpdateManyWithoutProjectNestedInput
   }
@@ -35123,6 +35204,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    boardProjectId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -35155,6 +35237,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: string | null
+    boardProjectId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -35213,6 +35296,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    boardProjectId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37291,6 +37375,11 @@ export namespace Prisma {
     isNot?: WorkspaceWhereInput | null
   }
 
+  export type FloxProjectNullableRelationFilter = {
+    is?: FloxProjectWhereInput | null
+    isNot?: FloxProjectWhereInput | null
+  }
+
   export type ProjectCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -37813,6 +37902,11 @@ export namespace Prisma {
     isNot?: WorkspaceWhereInput
   }
 
+  export type ProjectNullableRelationFilter = {
+    is?: ProjectWhereInput | null
+    isNot?: ProjectWhereInput | null
+  }
+
   export type FloxProjectWorkspaceIdSlugCompoundUniqueInput = {
     workspaceId: string
     slug: string
@@ -37843,6 +37937,7 @@ export namespace Prisma {
     metadata?: SortOrder
     modules?: SortOrder
     objectId?: SortOrder
+    boardProjectId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
@@ -37852,6 +37947,7 @@ export namespace Prisma {
     ownerId?: SortOrder
     budget?: SortOrder
     progress?: SortOrder
+    boardProjectId?: SortOrder
   }
 
   export type FloxProjectMaxOrderByAggregateInput = {
@@ -37877,6 +37973,7 @@ export namespace Prisma {
     coverImage?: SortOrder
     aiSummary?: SortOrder
     objectId?: SortOrder
+    boardProjectId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
@@ -37905,6 +38002,7 @@ export namespace Prisma {
     coverImage?: SortOrder
     aiSummary?: SortOrder
     objectId?: SortOrder
+    boardProjectId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
@@ -37914,6 +38012,7 @@ export namespace Prisma {
     ownerId?: SortOrder
     budget?: SortOrder
     progress?: SortOrder
+    boardProjectId?: SortOrder
   }
 
   export type EnumProjectStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -40217,6 +40316,12 @@ export namespace Prisma {
     connect?: ProjectTeamWhereUniqueInput | ProjectTeamWhereUniqueInput[]
   }
 
+  export type FloxProjectCreateNestedOneWithoutBoardProjectInput = {
+    create?: XOR<FloxProjectCreateWithoutBoardProjectInput, FloxProjectUncheckedCreateWithoutBoardProjectInput>
+    connectOrCreate?: FloxProjectCreateOrConnectWithoutBoardProjectInput
+    connect?: FloxProjectWhereUniqueInput
+  }
+
   export type TaskUncheckedCreateNestedManyWithoutProjectInput = {
     create?: XOR<TaskCreateWithoutProjectInput, TaskUncheckedCreateWithoutProjectInput> | TaskCreateWithoutProjectInput[] | TaskUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: TaskCreateOrConnectWithoutProjectInput | TaskCreateOrConnectWithoutProjectInput[]
@@ -40229,6 +40334,12 @@ export namespace Prisma {
     connectOrCreate?: ProjectTeamCreateOrConnectWithoutProjectInput | ProjectTeamCreateOrConnectWithoutProjectInput[]
     createMany?: ProjectTeamCreateManyProjectInputEnvelope
     connect?: ProjectTeamWhereUniqueInput | ProjectTeamWhereUniqueInput[]
+  }
+
+  export type FloxProjectUncheckedCreateNestedOneWithoutBoardProjectInput = {
+    create?: XOR<FloxProjectCreateWithoutBoardProjectInput, FloxProjectUncheckedCreateWithoutBoardProjectInput>
+    connectOrCreate?: FloxProjectCreateOrConnectWithoutBoardProjectInput
+    connect?: FloxProjectWhereUniqueInput
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -40273,6 +40384,16 @@ export namespace Prisma {
     deleteMany?: ProjectTeamScalarWhereInput | ProjectTeamScalarWhereInput[]
   }
 
+  export type FloxProjectUpdateOneWithoutBoardProjectNestedInput = {
+    create?: XOR<FloxProjectCreateWithoutBoardProjectInput, FloxProjectUncheckedCreateWithoutBoardProjectInput>
+    connectOrCreate?: FloxProjectCreateOrConnectWithoutBoardProjectInput
+    upsert?: FloxProjectUpsertWithoutBoardProjectInput
+    disconnect?: FloxProjectWhereInput | boolean
+    delete?: FloxProjectWhereInput | boolean
+    connect?: FloxProjectWhereUniqueInput
+    update?: XOR<XOR<FloxProjectUpdateToOneWithWhereWithoutBoardProjectInput, FloxProjectUpdateWithoutBoardProjectInput>, FloxProjectUncheckedUpdateWithoutBoardProjectInput>
+  }
+
   export type TaskUncheckedUpdateManyWithoutProjectNestedInput = {
     create?: XOR<TaskCreateWithoutProjectInput, TaskUncheckedCreateWithoutProjectInput> | TaskCreateWithoutProjectInput[] | TaskUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: TaskCreateOrConnectWithoutProjectInput | TaskCreateOrConnectWithoutProjectInput[]
@@ -40299,6 +40420,16 @@ export namespace Prisma {
     update?: ProjectTeamUpdateWithWhereUniqueWithoutProjectInput | ProjectTeamUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: ProjectTeamUpdateManyWithWhereWithoutProjectInput | ProjectTeamUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: ProjectTeamScalarWhereInput | ProjectTeamScalarWhereInput[]
+  }
+
+  export type FloxProjectUncheckedUpdateOneWithoutBoardProjectNestedInput = {
+    create?: XOR<FloxProjectCreateWithoutBoardProjectInput, FloxProjectUncheckedCreateWithoutBoardProjectInput>
+    connectOrCreate?: FloxProjectCreateOrConnectWithoutBoardProjectInput
+    upsert?: FloxProjectUpsertWithoutBoardProjectInput
+    disconnect?: FloxProjectWhereInput | boolean
+    delete?: FloxProjectWhereInput | boolean
+    connect?: FloxProjectWhereUniqueInput
+    update?: XOR<XOR<FloxProjectUpdateToOneWithWhereWithoutBoardProjectInput, FloxProjectUpdateWithoutBoardProjectInput>, FloxProjectUncheckedUpdateWithoutBoardProjectInput>
   }
 
   export type TeamCreateNestedOneWithoutProjectTeamsInput = {
@@ -41171,6 +41302,12 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type ProjectCreateNestedOneWithoutFloxProjectInput = {
+    create?: XOR<ProjectCreateWithoutFloxProjectInput, ProjectUncheckedCreateWithoutFloxProjectInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutFloxProjectInput
+    connect?: ProjectWhereUniqueInput
+  }
+
   export type FloxFolderCreateNestedManyWithoutProjectInput = {
     create?: XOR<FloxFolderCreateWithoutProjectInput, FloxFolderUncheckedCreateWithoutProjectInput> | FloxFolderCreateWithoutProjectInput[] | FloxFolderUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: FloxFolderCreateOrConnectWithoutProjectInput | FloxFolderCreateOrConnectWithoutProjectInput[]
@@ -41237,6 +41374,16 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutOwnedFloxProjectsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOwnedFloxProjectsInput, UserUpdateWithoutOwnedFloxProjectsInput>, UserUncheckedUpdateWithoutOwnedFloxProjectsInput>
+  }
+
+  export type ProjectUpdateOneWithoutFloxProjectNestedInput = {
+    create?: XOR<ProjectCreateWithoutFloxProjectInput, ProjectUncheckedCreateWithoutFloxProjectInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutFloxProjectInput
+    upsert?: ProjectUpsertWithoutFloxProjectInput
+    disconnect?: ProjectWhereInput | boolean
+    delete?: ProjectWhereInput | boolean
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutFloxProjectInput, ProjectUpdateWithoutFloxProjectInput>, ProjectUncheckedUpdateWithoutFloxProjectInput>
   }
 
   export type FloxFolderUpdateManyWithoutProjectNestedInput = {
@@ -43756,6 +43903,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     workspace: WorkspaceCreateNestedOneWithoutFloxProjectsInput
+    boardProject?: ProjectCreateNestedOneWithoutFloxProjectInput
     folders?: FloxFolderCreateNestedManyWithoutProjectInput
     files?: FloxFileCreateNestedManyWithoutProjectInput
   }
@@ -43784,6 +43932,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: string | null
+    boardProjectId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -44520,6 +44669,7 @@ export namespace Prisma {
     metadata?: JsonFilter<"FloxProject">
     modules?: JsonFilter<"FloxProject">
     objectId?: StringNullableFilter<"FloxProject"> | string | null
+    boardProjectId?: IntNullableFilter<"FloxProject"> | number | null
     createdAt?: DateTimeFilter<"FloxProject"> | Date | string
     updatedAt?: DateTimeFilter<"FloxProject"> | Date | string
     deletedAt?: DateTimeNullableFilter<"FloxProject"> | Date | string | null
@@ -44933,6 +45083,75 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type FloxProjectCreateWithoutBoardProjectInput = {
+    id?: string
+    name: string
+    slug: string
+    description?: string | null
+    status?: $Enums.ProjectStatus
+    priority?: $Enums.ProjectPriority
+    visibility?: $Enums.ProjectVisibility
+    projectType?: $Enums.ProjectType
+    industry?: string | null
+    budget?: number | null
+    currency?: string | null
+    startDate?: Date | string | null
+    dueDate?: Date | string | null
+    completedDate?: Date | string | null
+    progress?: number
+    color?: string | null
+    icon?: string | null
+    coverImage?: string | null
+    aiSummary?: string | null
+    metadata?: JsonNullValueInput | InputJsonValue
+    modules?: JsonNullValueInput | InputJsonValue
+    objectId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    workspace: WorkspaceCreateNestedOneWithoutFloxProjectsInput
+    owner: UserCreateNestedOneWithoutOwnedFloxProjectsInput
+    folders?: FloxFolderCreateNestedManyWithoutProjectInput
+    files?: FloxFileCreateNestedManyWithoutProjectInput
+  }
+
+  export type FloxProjectUncheckedCreateWithoutBoardProjectInput = {
+    id?: string
+    workspaceId: string
+    name: string
+    slug: string
+    description?: string | null
+    status?: $Enums.ProjectStatus
+    priority?: $Enums.ProjectPriority
+    visibility?: $Enums.ProjectVisibility
+    ownerId: number
+    projectType?: $Enums.ProjectType
+    industry?: string | null
+    budget?: number | null
+    currency?: string | null
+    startDate?: Date | string | null
+    dueDate?: Date | string | null
+    completedDate?: Date | string | null
+    progress?: number
+    color?: string | null
+    icon?: string | null
+    coverImage?: string | null
+    aiSummary?: string | null
+    metadata?: JsonNullValueInput | InputJsonValue
+    modules?: JsonNullValueInput | InputJsonValue
+    objectId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    folders?: FloxFolderUncheckedCreateNestedManyWithoutProjectInput
+    files?: FloxFileUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type FloxProjectCreateOrConnectWithoutBoardProjectInput = {
+    where: FloxProjectWhereUniqueInput
+    create: XOR<FloxProjectCreateWithoutBoardProjectInput, FloxProjectUncheckedCreateWithoutBoardProjectInput>
+  }
+
   export type WorkspaceUpsertWithoutProjectsInput = {
     update: XOR<WorkspaceUpdateWithoutProjectsInput, WorkspaceUncheckedUpdateWithoutProjectsInput>
     create: XOR<WorkspaceCreateWithoutProjectsInput, WorkspaceUncheckedCreateWithoutProjectsInput>
@@ -45046,6 +45265,81 @@ export namespace Prisma {
     data: XOR<ProjectTeamUpdateManyMutationInput, ProjectTeamUncheckedUpdateManyWithoutProjectInput>
   }
 
+  export type FloxProjectUpsertWithoutBoardProjectInput = {
+    update: XOR<FloxProjectUpdateWithoutBoardProjectInput, FloxProjectUncheckedUpdateWithoutBoardProjectInput>
+    create: XOR<FloxProjectCreateWithoutBoardProjectInput, FloxProjectUncheckedCreateWithoutBoardProjectInput>
+    where?: FloxProjectWhereInput
+  }
+
+  export type FloxProjectUpdateToOneWithWhereWithoutBoardProjectInput = {
+    where?: FloxProjectWhereInput
+    data: XOR<FloxProjectUpdateWithoutBoardProjectInput, FloxProjectUncheckedUpdateWithoutBoardProjectInput>
+  }
+
+  export type FloxProjectUpdateWithoutBoardProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+    priority?: EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
+    visibility?: EnumProjectVisibilityFieldUpdateOperationsInput | $Enums.ProjectVisibility
+    projectType?: EnumProjectTypeFieldUpdateOperationsInput | $Enums.ProjectType
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
+    budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    progress?: IntFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    aiSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: JsonNullValueInput | InputJsonValue
+    modules?: JsonNullValueInput | InputJsonValue
+    objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workspace?: WorkspaceUpdateOneRequiredWithoutFloxProjectsNestedInput
+    owner?: UserUpdateOneRequiredWithoutOwnedFloxProjectsNestedInput
+    folders?: FloxFolderUpdateManyWithoutProjectNestedInput
+    files?: FloxFileUpdateManyWithoutProjectNestedInput
+  }
+
+  export type FloxProjectUncheckedUpdateWithoutBoardProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+    priority?: EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
+    visibility?: EnumProjectVisibilityFieldUpdateOperationsInput | $Enums.ProjectVisibility
+    ownerId?: IntFieldUpdateOperationsInput | number
+    projectType?: EnumProjectTypeFieldUpdateOperationsInput | $Enums.ProjectType
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
+    budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    progress?: IntFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    aiSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: JsonNullValueInput | InputJsonValue
+    modules?: JsonNullValueInput | InputJsonValue
+    objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    folders?: FloxFolderUncheckedUpdateManyWithoutProjectNestedInput
+    files?: FloxFileUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
   export type TeamCreateWithoutProjectTeamsInput = {
     teamName: string
     productOwnerUserId?: number | null
@@ -45073,6 +45367,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     workspace?: WorkspaceCreateNestedOneWithoutProjectsInput
     tasks?: TaskCreateNestedManyWithoutProjectInput
+    floxProject?: FloxProjectCreateNestedOneWithoutBoardProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutProjectTeamsInput = {
@@ -45083,6 +45378,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     workspaceId?: string | null
     tasks?: TaskUncheckedCreateNestedManyWithoutProjectInput
+    floxProject?: FloxProjectUncheckedCreateNestedOneWithoutBoardProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutProjectTeamsInput = {
@@ -45134,6 +45430,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     workspace?: WorkspaceUpdateOneWithoutProjectsNestedInput
     tasks?: TaskUpdateManyWithoutProjectNestedInput
+    floxProject?: FloxProjectUpdateOneWithoutBoardProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutProjectTeamsInput = {
@@ -45144,6 +45441,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     tasks?: TaskUncheckedUpdateManyWithoutProjectNestedInput
+    floxProject?: FloxProjectUncheckedUpdateOneWithoutBoardProjectNestedInput
   }
 
   export type ProjectCreateWithoutTasksInput = {
@@ -45153,6 +45451,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     workspace?: WorkspaceCreateNestedOneWithoutProjectsInput
     projectTeams?: ProjectTeamCreateNestedManyWithoutProjectInput
+    floxProject?: FloxProjectCreateNestedOneWithoutBoardProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutTasksInput = {
@@ -45163,6 +45462,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     workspaceId?: string | null
     projectTeams?: ProjectTeamUncheckedCreateNestedManyWithoutProjectInput
+    floxProject?: FloxProjectUncheckedCreateNestedOneWithoutBoardProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutTasksInput = {
@@ -45367,6 +45667,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     workspace?: WorkspaceUpdateOneWithoutProjectsNestedInput
     projectTeams?: ProjectTeamUpdateManyWithoutProjectNestedInput
+    floxProject?: FloxProjectUpdateOneWithoutBoardProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutTasksInput = {
@@ -45377,6 +45678,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     projectTeams?: ProjectTeamUncheckedUpdateManyWithoutProjectNestedInput
+    floxProject?: FloxProjectUncheckedUpdateOneWithoutBoardProjectNestedInput
   }
 
   export type UserUpsertWithoutAuthoredTasksInput = {
@@ -46286,6 +46588,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     tasks?: TaskCreateNestedManyWithoutProjectInput
     projectTeams?: ProjectTeamCreateNestedManyWithoutProjectInput
+    floxProject?: FloxProjectCreateNestedOneWithoutBoardProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutWorkspaceInput = {
@@ -46296,6 +46599,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     tasks?: TaskUncheckedCreateNestedManyWithoutProjectInput
     projectTeams?: ProjectTeamUncheckedCreateNestedManyWithoutProjectInput
+    floxProject?: FloxProjectUncheckedCreateNestedOneWithoutBoardProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutWorkspaceInput = {
@@ -46335,6 +46639,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     owner: UserCreateNestedOneWithoutOwnedFloxProjectsInput
+    boardProject?: ProjectCreateNestedOneWithoutFloxProjectInput
     folders?: FloxFolderCreateNestedManyWithoutProjectInput
     files?: FloxFileCreateNestedManyWithoutProjectInput
   }
@@ -46363,6 +46668,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: string | null
+    boardProjectId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -47260,6 +47566,32 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutOwnedFloxProjectsInput, UserUncheckedCreateWithoutOwnedFloxProjectsInput>
   }
 
+  export type ProjectCreateWithoutFloxProjectInput = {
+    name: string
+    description?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    workspace?: WorkspaceCreateNestedOneWithoutProjectsInput
+    tasks?: TaskCreateNestedManyWithoutProjectInput
+    projectTeams?: ProjectTeamCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutFloxProjectInput = {
+    id?: number
+    name: string
+    description?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    workspaceId?: string | null
+    tasks?: TaskUncheckedCreateNestedManyWithoutProjectInput
+    projectTeams?: ProjectTeamUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutFloxProjectInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutFloxProjectInput, ProjectUncheckedCreateWithoutFloxProjectInput>
+  }
+
   export type FloxFolderCreateWithoutProjectInput = {
     id?: string
     name: string
@@ -47559,6 +47891,38 @@ export namespace Prisma {
     fileVersionsEdited?: FloxFileVersionUncheckedUpdateManyWithoutEditorNestedInput
   }
 
+  export type ProjectUpsertWithoutFloxProjectInput = {
+    update: XOR<ProjectUpdateWithoutFloxProjectInput, ProjectUncheckedUpdateWithoutFloxProjectInput>
+    create: XOR<ProjectCreateWithoutFloxProjectInput, ProjectUncheckedCreateWithoutFloxProjectInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutFloxProjectInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutFloxProjectInput, ProjectUncheckedUpdateWithoutFloxProjectInput>
+  }
+
+  export type ProjectUpdateWithoutFloxProjectInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workspace?: WorkspaceUpdateOneWithoutProjectsNestedInput
+    tasks?: TaskUpdateManyWithoutProjectNestedInput
+    projectTeams?: ProjectTeamUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutFloxProjectInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    tasks?: TaskUncheckedUpdateManyWithoutProjectNestedInput
+    projectTeams?: ProjectTeamUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
   export type FloxFolderUpsertWithWhereUniqueWithoutProjectInput = {
     where: FloxFolderWhereUniqueInput
     update: XOR<FloxFolderUpdateWithoutProjectInput, FloxFolderUncheckedUpdateWithoutProjectInput>
@@ -47694,6 +48058,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     workspace: WorkspaceCreateNestedOneWithoutFloxProjectsInput
     owner: UserCreateNestedOneWithoutOwnedFloxProjectsInput
+    boardProject?: ProjectCreateNestedOneWithoutFloxProjectInput
     files?: FloxFileCreateNestedManyWithoutProjectInput
   }
 
@@ -47722,6 +48087,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: string | null
+    boardProjectId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -48174,6 +48540,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     workspace?: WorkspaceUpdateOneRequiredWithoutFloxProjectsNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedFloxProjectsNestedInput
+    boardProject?: ProjectUpdateOneWithoutFloxProjectNestedInput
     files?: FloxFileUpdateManyWithoutProjectNestedInput
   }
 
@@ -48202,6 +48569,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    boardProjectId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -48486,6 +48854,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     workspace: WorkspaceCreateNestedOneWithoutFloxProjectsInput
     owner: UserCreateNestedOneWithoutOwnedFloxProjectsInput
+    boardProject?: ProjectCreateNestedOneWithoutFloxProjectInput
     folders?: FloxFolderCreateNestedManyWithoutProjectInput
   }
 
@@ -48514,6 +48883,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: string | null
+    boardProjectId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -48796,6 +49166,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     workspace?: WorkspaceUpdateOneRequiredWithoutFloxProjectsNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedFloxProjectsNestedInput
+    boardProject?: ProjectUpdateOneWithoutFloxProjectNestedInput
     folders?: FloxFolderUpdateManyWithoutProjectNestedInput
   }
 
@@ -48824,6 +49195,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    boardProjectId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -53059,6 +53431,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: string | null
+    boardProjectId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -53810,6 +54183,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     workspace?: WorkspaceUpdateOneRequiredWithoutFloxProjectsNestedInput
+    boardProject?: ProjectUpdateOneWithoutFloxProjectNestedInput
     folders?: FloxFolderUpdateManyWithoutProjectNestedInput
     files?: FloxFileUpdateManyWithoutProjectNestedInput
   }
@@ -53838,6 +54212,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    boardProjectId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -53869,6 +54244,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    boardProjectId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -54397,6 +54773,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: string | null
+    boardProjectId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -54627,6 +55004,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tasks?: TaskUpdateManyWithoutProjectNestedInput
     projectTeams?: ProjectTeamUpdateManyWithoutProjectNestedInput
+    floxProject?: FloxProjectUpdateOneWithoutBoardProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
@@ -54637,6 +55015,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tasks?: TaskUncheckedUpdateManyWithoutProjectNestedInput
     projectTeams?: ProjectTeamUncheckedUpdateManyWithoutProjectNestedInput
+    floxProject?: FloxProjectUncheckedUpdateOneWithoutBoardProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -54674,6 +55053,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     owner?: UserUpdateOneRequiredWithoutOwnedFloxProjectsNestedInput
+    boardProject?: ProjectUpdateOneWithoutFloxProjectNestedInput
     folders?: FloxFolderUpdateManyWithoutProjectNestedInput
     files?: FloxFileUpdateManyWithoutProjectNestedInput
   }
@@ -54702,6 +55082,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    boardProjectId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -54733,6 +55114,7 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     modules?: JsonNullValueInput | InputJsonValue
     objectId?: NullableStringFieldUpdateOperationsInput | string | null
+    boardProjectId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

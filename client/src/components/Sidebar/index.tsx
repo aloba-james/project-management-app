@@ -23,7 +23,6 @@ import React from "react";
 import { useWorkspaces } from "@/hooks/useWorkspaces";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useProjects } from "@/hooks/useProjects";
-import { useGetProjectsQuery } from "@/state/api";
 
 /**
  * OS-style shell nav — supporting views, not the product center.
@@ -38,7 +37,6 @@ const Sidebar = () => {
   const { data: projects = [] } = useProjects({
     workspaceId: activeWorkspace?.id,
   });
-  const { data: legacyProjects } = useGetProjectsQuery();
   const isSidebarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed,
   );
@@ -46,7 +44,11 @@ const Sidebar = () => {
   const wsHref = activeWorkspace
     ? `/workspaces/${activeWorkspace.id}`
     : "/";
-  const firstBoardId = legacyProjects?.[0]?.id;
+  const firstProject = projects[0];
+  const boardHref =
+    activeWorkspace && firstProject
+      ? `/workspaces/${activeWorkspace.id}/projects/${firstProject.id}/board`
+      : wsHref;
 
   return (
     <aside
@@ -87,19 +89,11 @@ const Sidebar = () => {
         <nav className="flex flex-col gap-0.5 pb-2">
           <SidebarLink icon={Briefcase} label="Timeline / Gantt" href="/timeline" />
           <SidebarLink icon={Calendar} label="Calendar" href="/calendar" />
-          {firstBoardId ? (
-            <SidebarLink
-              icon={LayoutGrid}
-              label="Board (drag & drop)"
-              href={`/projects/${firstBoardId}`}
-            />
-          ) : (
-            <SidebarLink
-              icon={LayoutGrid}
-              label="Board (drag & drop)"
-              href="/timeline"
-            />
-          )}
+          <SidebarLink
+            icon={LayoutGrid}
+            label="Board (drag & drop)"
+            href={boardHref}
+          />
           <SidebarLink icon={Settings} label="Settings" href="/settings" />
         </nav>
 
@@ -129,7 +123,7 @@ const Sidebar = () => {
             <p className="px-6 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               Projects
             </p>
-            <div className="flex flex-col gap-0.5 pb-4">
+            <div className="flex flex-col gap-0.5 pb-2">
               {projects.slice(0, 10).map((p) => (
                 <SidebarLink
                   key={p.id}
@@ -139,22 +133,16 @@ const Sidebar = () => {
                 />
               ))}
             </div>
-          </>
-        )}
-
-        {legacyProjects && legacyProjects.length > 0 && (
-          <>
-            <Separator className="my-2" />
             <p className="px-6 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               Task boards
             </p>
             <div className="flex flex-col gap-0.5 pb-4">
-              {legacyProjects.slice(0, 10).map((p) => (
+              {projects.slice(0, 10).map((p) => (
                 <SidebarLink
-                  key={p.id}
+                  key={`${p.id}-board`}
                   icon={LayoutGrid}
                   label={p.name}
-                  href={`/projects/${p.id}`}
+                  href={`/workspaces/${activeWorkspace.id}/projects/${p.id}/board`}
                 />
               ))}
             </div>

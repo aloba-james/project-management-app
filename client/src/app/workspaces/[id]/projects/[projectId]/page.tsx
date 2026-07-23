@@ -51,6 +51,11 @@ export default function FloxProjectOverviewPage({
           </Link>
         </Button>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/workspaces/${workspaceId}/projects/${project.id}/board`}>
+              Task board
+            </Link>
+          </Button>
           <Button
             variant="ghost"
             size="sm"

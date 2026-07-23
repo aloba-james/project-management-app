@@ -8,7 +8,13 @@ export const getProjects = async (
   res: Response
 ): Promise<void> => {
   try {
+    const workspaceId =
+      typeof req.query.workspaceId === "string"
+        ? req.query.workspaceId
+        : undefined;
+
     const projects = await prisma.project.findMany({
+      where: workspaceId ? { workspaceId } : undefined,
       include: {
         projectTeams: {
           include: {
@@ -16,6 +22,7 @@ export const getProjects = async (
           },
         },
       },
+      orderBy: { id: "desc" },
     });
     res.json(projects);
   } catch (error: any) {
@@ -59,7 +66,7 @@ export const createProject = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { name, description, startDate, endDate } = req.body;
+  const { name, description, startDate, endDate, workspaceId } = req.body;
   try {
     const newProject = await prisma.project.create({
       data: {
@@ -67,6 +74,7 @@ export const createProject = async (
         description,
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
+        workspaceId: workspaceId || undefined,
       },
     });
     res.status(201).json(newProject);

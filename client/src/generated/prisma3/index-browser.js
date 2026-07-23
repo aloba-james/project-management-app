@@ -237,6 +237,7 @@ exports.Prisma.FloxProjectScalarFieldEnum = {
   metadata: 'metadata',
   modules: 'modules',
   objectId: 'objectId',
+  boardProjectId: 'boardProjectId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'

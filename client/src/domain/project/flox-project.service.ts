@@ -125,8 +125,21 @@ export async function createProject(userId: number, body: CreateProjectInput) {
   });
 
   const blueprint = getBlueprint(body.blueprint);
+  const startDate = body.startDate ? new Date(body.startDate) : null;
+  const dueDate = body.dueDate ? new Date(body.dueDate) : null;
 
   const project = await prisma.$transaction(async (tx) => {
+    // Task board lives on legacy Express Project, scoped to the same workspace
+    const board = await tx.project.create({
+      data: {
+        name: body.name,
+        description: body.description ?? null,
+        startDate: startDate ?? undefined,
+        endDate: dueDate ?? undefined,
+        workspaceId,
+      },
+    });
+
     const created = await tx.floxProject.create({
       data: {
         workspaceId,
@@ -141,8 +154,8 @@ export async function createProject(userId: number, body: CreateProjectInput) {
         industry: body.industry ?? null,
         budget: body.budget ?? null,
         currency: body.currency || "USD",
-        startDate: body.startDate ? new Date(body.startDate) : null,
-        dueDate: body.dueDate ? new Date(body.dueDate) : null,
+        startDate,
+        dueDate,
         progress,
         color: body.color ?? null,
         icon: body.icon ?? null,
@@ -150,6 +163,7 @@ export async function createProject(userId: number, body: CreateProjectInput) {
         aiSummary,
         metadata: (body.metadata ?? {}) as Prisma.InputJsonValue,
         modules: DEFAULT_MODULES as Prisma.InputJsonValue,
+        boardProjectId: board.id,
       },
     });
 
@@ -244,8 +258,36 @@ export async function listProjects(query: {
   return projects.map(serializeProject);
 }
 
+/** Ensure a Flox project has a workspace-scoped legacy task board. */
+export async function ensureBoardForProject(id: string) {
+  const existing = await prisma.floxProject.findUnique({ where: { id } });
+  if (!existing || existing.status === "Deleted") {
+    throw new AuthError("Project not found", 404);
+  }
+  if (existing.boardProjectId) {
+    return existing.boardProjectId;
+  }
+
+  const board = await prisma.project.create({
+    data: {
+      name: existing.name,
+      description: existing.description,
+      startDate: existing.startDate ?? undefined,
+      endDate: existing.dueDate ?? undefined,
+      workspaceId: existing.workspaceId,
+    },
+  });
+
+  await prisma.floxProject.update({
+    where: { id },
+    data: { boardProjectId: board.id },
+  });
+
+  return board.id;
+}
+
 export async function getProject(id: string, workspaceId?: string) {
-  const project = await prisma.floxProject.findUnique({
+  let project = await prisma.floxProject.findUnique({
     where: { id },
     include: {
       _count: { select: { folders: true } },
@@ -262,6 +304,25 @@ export async function getProject(id: string, workspaceId?: string) {
   if (!project || (workspaceId && project.workspaceId !== workspaceId)) {
     throw new AuthError("Project not found", 404);
   }
+
+  if (!project.boardProjectId) {
+    await ensureBoardForProject(id);
+    project = await prisma.floxProject.findUniqueOrThrow({
+      where: { id },
+      include: {
+        _count: { select: { folders: true } },
+        owner: {
+          select: {
+            userId: true,
+            username: true,
+            email: true,
+            profilePictureUrl: true,
+          },
+        },
+      },
+    });
+  }
+
   return {
     ...serializeProject(project),
     owner: project.owner,
@@ -357,6 +418,20 @@ export async function updateProject(
         description: project.description,
         aiSummary: project.aiSummary,
         updatedBy: userId,
+      },
+    });
+  }
+
+  // Keep the linked task board in sync with the Flox project
+  if (project.boardProjectId) {
+    await prisma.project.update({
+      where: { id: project.boardProjectId },
+      data: {
+        name: project.name,
+        description: project.description,
+        startDate: project.startDate ?? undefined,
+        endDate: project.dueDate ?? undefined,
+        workspaceId: project.workspaceId,
       },
     });
   }

@@ -6,6 +6,7 @@ export interface Project {
   description?: string;
   startDate?: string;
   endDate?: string;
+  workspaceId?: string | null;
   projectTeams?: ProjectTeam[];
 }
 
@@ -99,8 +100,14 @@ export const api = createApi({
   reducerPath: "api",
   tagTypes: ["Projects", "Tasks", "Users", "Teams"],
   endpoints: (build) => ({
-    getProjects: build.query<Project[], void>({
-      query: () => "projects",
+    getProjects: build.query<
+      Project[],
+      { workspaceId?: string } | void
+    >({
+      query: (arg) =>
+        arg?.workspaceId
+          ? `projects?workspaceId=${encodeURIComponent(arg.workspaceId)}`
+          : "projects",
       providesTags: ["Projects"],
     }),
     getProject: build.query<Project, number>({

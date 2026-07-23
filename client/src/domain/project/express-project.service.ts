@@ -36,8 +36,11 @@ export const expressProjectService = {
   name: "express-project-service",
   mode: "express-adapter" as const,
 
-  list(token?: string) {
-    return expressFetch<unknown>("projects", { token });
+  list(params?: { workspaceId?: string; token?: string }) {
+    const q = params?.workspaceId
+      ? `projects?workspaceId=${encodeURIComponent(params.workspaceId)}`
+      : "projects";
+    return expressFetch<unknown>(q, { token: params?.token });
   },
 
   get(projectId: string | number, token?: string) {

@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateProjectMutation } from "@/state/api";
+import { useCreateProject } from "@/hooks/useProjects";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 type Props = {
@@ -13,36 +15,53 @@ type Props = {
   onClose: () => void;
 };
 
+/** Creates a Flox project (and its linked task board) in the active workspace. */
 const ModalNewProject = ({ isOpen, onClose }: Props) => {
-  const [createProject, { isLoading }] = useCreateProjectMutation();
+  const router = useRouter();
+  const createProject = useCreateProject();
+  const activeWorkspaceId = useWorkspaceStore((s) => s.activeWorkspaceId);
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const resetForm = () => {
     setProjectName("");
     setDescription("");
     setStartDate("");
     setEndDate("");
+    setError(null);
   };
 
   const handleSubmit = async () => {
     if (!projectName || !startDate || !endDate) return;
+    if (!activeWorkspaceId) {
+      setError("Select a workspace first");
+      return;
+    }
 
-    await createProject({
-      name: projectName,
-      description: description || undefined,
-      startDate,
-      endDate,
-    });
-
-    resetForm();
-    onClose();
+    try {
+      setError(null);
+      const result = await createProject.mutateAsync({
+        workspaceId: activeWorkspaceId,
+        name: projectName,
+        description: description || null,
+        status: "Active",
+      });
+      const project = result.project;
+      resetForm();
+      onClose();
+      router.push(
+        `/workspaces/${activeWorkspaceId}/projects/${project.id}/board`,
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create project");
+    }
   };
 
   const isFormValid = () => {
-    return Boolean(projectName && startDate && endDate);
+    return Boolean(projectName && startDate && endDate && activeWorkspaceId);
   };
 
   return (
@@ -51,9 +70,15 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
         className="mt-2 space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          handleSubmit();
+          void handleSubmit();
         }}
       >
+        {!activeWorkspaceId && (
+          <p className="text-sm text-destructive">
+            Choose an active workspace before creating a board.
+          </p>
+        )}
+        {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="space-y-2">
           <Label htmlFor="project-name">Project name</Label>
           <Input
@@ -95,9 +120,11 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
         <Button
           type="submit"
           className="w-full"
-          disabled={!isFormValid() || isLoading}
+          disabled={!isFormValid() || createProject.isPending}
         >
-          {isLoading ? "Creating..." : "Create Project"}
+          {createProject.isPending
+            ? "Creating…"
+            : "Create Project & Board"}
         </Button>
       </form>
     </Modal>

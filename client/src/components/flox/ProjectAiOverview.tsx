@@ -97,6 +97,7 @@ export function ProjectAiOverview({ workspaceId, project, className }: Props) {
         {(
           [
             ["Overview", `#overview`],
+            ["Board", `/workspaces/${workspaceId}/projects/${project.id}/board`],
             ["Files", `#files`],
             ["Folders", `#folders`],
             ["AI", `/brain?workspaceId=${workspaceId}`],

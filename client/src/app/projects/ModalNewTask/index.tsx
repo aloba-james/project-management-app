@@ -11,6 +11,7 @@ import {
   useCreateTaskMutation,
   useGetProjectsQuery,
 } from "@/state/api";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
@@ -30,9 +31,11 @@ const ModalNewTask = ({
   initialDueDate = "",
 }: Props) => {
   const { data: session } = useSession();
-  const { data: projects } = useGetProjectsQuery(undefined, {
-    skip: id !== null,
-  });
+  const activeWorkspaceId = useWorkspaceStore((s) => s.activeWorkspaceId);
+  const { data: projects } = useGetProjectsQuery(
+    activeWorkspaceId ? { workspaceId: activeWorkspaceId } : undefined,
+    { skip: id !== null },
+  );
   const [createTask, { isLoading }] = useCreateTaskMutation();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

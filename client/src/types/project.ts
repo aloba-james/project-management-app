@@ -58,6 +58,8 @@ export type FloxProject = {
   metadata: unknown;
   modules: unknown;
   objectId: string | null;
+  /** Linked Express task board id (Int) */
+  boardProjectId: number | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

@@ -4,6 +4,7 @@ import { useAppSelector } from "@/app/redux";
 import Header from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { useGetProjectsQuery } from "@/state/api";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
 import React, { useMemo, useState } from "react";
@@ -12,7 +13,10 @@ type TaskTypeItems = "task" | "milestone" | "project";
 
 const Timeline = () => {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
-  const { data: projects, isLoading, isError } = useGetProjectsQuery();
+  const activeWorkspaceId = useWorkspaceStore((s) => s.activeWorkspaceId);
+  const { data: projects, isLoading, isError } = useGetProjectsQuery(
+    activeWorkspaceId ? { workspaceId: activeWorkspaceId } : undefined,
+  );
 
   const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
     viewMode: ViewMode.Month,
