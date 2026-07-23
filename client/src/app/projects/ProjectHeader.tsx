@@ -1,6 +1,9 @@
 "use client";
 
 import Header from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clock,
   Filter,
@@ -9,18 +12,28 @@ import {
   PlusSquare,
   Share2,
   Table,
+  Users,
 } from "lucide-react";
 import React, { useState } from "react";
 import ModalNewProject from "./ModalNewProject";
+import ModalProjectTeams from "./ModalProjectTeams";
+import { useGetProjectsQuery } from "@/state/api";
 
 type Props = {
   activeTab: string;
   setActiveTab: (tabName: string) => void;
+  projectId?: string;
 };
 
-const ProjectHeader = ({ activeTab, setActiveTab }: Props) => {
-  // Initialize modal state with useState
+const ProjectHeader = ({ activeTab, setActiveTab, projectId }: Props) => {
   const [isModalNewProjectOpen, setIsModalNewProjectOpen] = useState(false);
+  const [isTeamsModalOpen, setIsTeamsModalOpen] = useState(false);
+  const { data: projects } = useGetProjectsQuery();
+  const project = projects?.find(
+    (item) => String(item.id) === String(projectId),
+  );
+  const projectName = project?.name ?? "Project";
+  const teamCount = project?.projectTeams?.length ?? 0;
 
   return (
     <div className="px-4 xl:px-6">
@@ -28,89 +41,77 @@ const ProjectHeader = ({ activeTab, setActiveTab }: Props) => {
         isOpen={isModalNewProjectOpen}
         onClose={() => setIsModalNewProjectOpen(false)}
       />
-      {/* MODAL NEW PROJECT */}
+      {projectId && (
+        <ModalProjectTeams
+          projectId={Number(projectId)}
+          isOpen={isTeamsModalOpen}
+          onClose={() => setIsTeamsModalOpen(false)}
+        />
+      )}
       <div className="pb-6 pt-6 lg:pb-4 lg:pt-4">
-        <Header name="Product Design Development"
+        <Header
+          name={projectName}
           buttonComponent={
-            <button 
-            className="flex items-center rounded-md bg-blue-primary px-3 py-2 "
-            >
-              <PlusSquare className="mr-2 h-4 w-4" />
-              New Boards
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsTeamsModalOpen(true)}
+              >
+                <Users className="h-4 w-4" />
+                Teams{teamCount > 0 ? ` (${teamCount})` : ""}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setIsModalNewProjectOpen(true)}
+              >
+                <PlusSquare className="h-4 w-4" />
+                New Boards
+              </Button>
+            </div>
           }
         />
       </div>
 
-      {/* TABS */}
-      <div className="flex flex-wrap-reverse gap-2 border-y border-gray-200 pb-[8px] pt-2 dark:border-gray-700">
-        <div className="flex flex-1 items-center gap-2 md:gap-4">
-          <TabButton
-            name="Board"
-            icon={<Grid3X3 className="h-5 w-5" />}
-            setActiveTab={setActiveTab}
-            activeTab={activeTab}
-          />
-          <TabButton
-            name="List"
-            icon={<List className="h-5 w-5" />}
-            setActiveTab={setActiveTab}
-            activeTab={activeTab}
-          />
-          <TabButton
-            name="Timeline"
-            icon={<Clock className="h-5 w-5" />}
-            setActiveTab={setActiveTab}
-            activeTab={activeTab}
-          />
-          <TabButton
-            name="Table"
-            icon={<Table className="h-5 w-5" />}
-            setActiveTab={setActiveTab}
-            activeTab={activeTab}
-          />
-        </div>
+      <div className="flex flex-wrap-reverse items-center gap-2 border-y py-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
+          <TabsList>
+            <TabsTrigger value="Board" className="gap-2">
+              <Grid3X3 className="h-4 w-4" />
+              Board
+            </TabsTrigger>
+            <TabsTrigger value="List" className="gap-2">
+              <List className="h-4 w-4" />
+              List
+            </TabsTrigger>
+            <TabsTrigger value="Timeline" className="gap-2">
+              <Clock className="h-4 w-4" />
+              Timeline
+            </TabsTrigger>
+            <TabsTrigger value="Table" className="gap-2">
+              <Table className="h-4 w-4" />
+              Table
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         <div className="flex items-center gap-2">
-          <button className="hoverLtext-gray-600 text-gray-500 dark:text-neutral-500 dark:hover:text-gray-400">
+          <Button variant="ghost" size="icon" type="button">
             <Filter className="h-5 w-5" />
-          </button>
-          <button className="hoverLtext-gray-600 text-gray-500 dark:text-neutral-500 dark:hover:text-gray-400">
+          </Button>
+          <Button variant="ghost" size="icon" type="button">
             <Share2 className="h-5 w-5" />
-          </button>
+          </Button>
           <div className="relative">
-            <input
+            <Grid3X3 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
               type="text"
-              placeholder="Search..."
-              className="rounded-md border py-1 pl-10 pr-4 focus:outline-none dark:border-dark-secondary dark:bg-dark-secondary dark:text-white"
+              placeholder="Search Task..."
+              className="w-44 pl-9"
             />
-            <Grid3X3 className="absolute left-3 top-2 h-4 w-4 text-gray-400 dark:text-neutral-500" />
           </div>
         </div>
       </div>
     </div>
-  );
-};
-
-type TabButtonProps = {
-  name: string;
-  icon: React.ReactNode;
-  setActiveTab: (tabName: string) => void;
-  activeTab: string;
-};
-
-const TabButton = ({ name, icon, setActiveTab, activeTab }: TabButtonProps) => {
-  const isActive = activeTab === name;
-
-  return (
-    <button
-      className={`relative flex items-center gap-2 px-1 py-2 text-gray-500 after:absolute after:-bottom-[9px] after:left-0 after:h-[1px] after:w-full hover:text-blue-600 dark:text-neutral-500 dark:hover:text-white ${
-        isActive ? "text-blue-600 after:bg-blue-600 dark:text-white" : ""
-      }`}
-      onClick={() => setActiveTab(name)}
-    >
-      {icon}
-      {name}
-    </button>
   );
 };
 

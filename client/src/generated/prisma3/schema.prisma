@@ -1,0 +1,900 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+generator clientNext {
+  provider = "prisma-client-js"
+  output   = "../../client/src/generated/prisma3"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WorkspaceType {
+  Personal
+  Business
+  Startup
+  Software
+  Healthcare
+  Education
+  Marketing
+  Research
+  Finance
+  Legal
+  Custom
+}
+
+enum WorkspacePlan {
+  Free
+  Pro
+  Enterprise
+}
+
+enum WorkspaceStatus {
+  Active
+  Archived
+  Deleted
+}
+
+enum WorkspaceMemberRole {
+  Owner
+  Admin
+  Manager
+  Editor
+  Viewer
+  Guest
+}
+
+enum ObjectType {
+  Workspace
+  Project
+  Folder
+  File
+  Task
+  Meeting
+  Prompt
+  Template
+  Knowledge
+  Person
+  Company
+  Repository
+  Workflow
+  Automation
+  Image
+  Video
+  Spreadsheet
+  Presentation
+  Database
+  Website
+  API
+}
+
+enum ObjectStatus {
+  Draft
+  Active
+  Archived
+  Deleted
+  Completed
+  InReview
+  Pending
+  Cancelled
+}
+
+enum ObjectRelationshipType {
+  belongs_to
+  references
+  generated_from
+  contains
+  depends_on
+  blocks
+  related_to
+  assigned_to
+  uses_template
+  attached_to
+  derived_from
+}
+
+enum ObjectActivityType {
+  Created
+  Updated
+  Archived
+  Deleted
+  Shared
+  Referenced
+  Viewed
+  Downloaded
+  AiGenerated
+}
+
+enum ObjectPermissionAction {
+  View
+  Comment
+  Edit
+  Delete
+  Share
+  Move
+  Archive
+}
+
+enum BrainIntent {
+  Create
+  Update
+  Delete
+  Search
+  Summarize
+  Generate
+  Translate
+  Explain
+  Research
+  Analyze
+  Automate
+  Schedule
+  Build
+  Deploy
+  Import
+  Export
+  Review
+  Approve
+  Compare
+}
+
+enum BrainExecutionStatus {
+  Planned
+  Running
+  Completed
+  Failed
+  Cancelled
+  AwaitingConfirmation
+}
+
+enum BrainAgentKind {
+  Proposal
+  Developer
+  Finance
+  Research
+  Meeting
+  Design
+  Legal
+  Marketing
+  General
+}
+
+enum BrainModelProvider {
+  LocalStub
+  OpenAI
+  Anthropic
+  GoogleGemini
+  Grok
+  Mistral
+  DeepSeek
+  Ollama
+}
+
+enum BrainMemoryScope {
+  user
+  workspace
+}
+
+enum PlanComplexity {
+  Simple
+  Medium
+  Complex
+  Enterprise
+  Massive
+}
+
+enum PlanStrategy {
+  SingleStep
+  MultiStep
+  Parallel
+  Sequential
+  Conditional
+  Hybrid
+}
+
+enum ExecutionPlanStatus {
+  Draft
+  PendingApproval
+  Approved
+  Rejected
+  Running
+  Completed
+  Failed
+  Cancelled
+  Paused
+}
+
+enum ExecutionStepStatus {
+  Pending
+  Ready
+  Running
+  Completed
+  Failed
+  Skipped
+  Cancelled
+}
+
+enum ProjectStatus {
+  Draft
+  Planning
+  Active
+  OnHold
+  Blocked
+  Completed
+  Cancelled
+  Archived
+  Deleted
+}
+
+enum ProjectType {
+  Software
+  Marketing
+  Research
+  Healthcare
+  Sales
+  Finance
+  HR
+  Construction
+  Legal
+  Education
+  Operations
+  Startup
+  Personal
+  Custom
+}
+
+enum ProjectVisibility {
+  Private
+  Workspace
+  PublicLink
+  Restricted
+}
+
+enum ProjectPriority {
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum FolderStatus {
+  Active
+  Archived
+  Locked
+  Hidden
+  Deleted
+}
+
+enum FolderType {
+  General
+  Development
+  Design
+  Marketing
+  Finance
+  Legal
+  HR
+  Research
+  Sales
+  Operations
+  Knowledge
+  Archive
+  Assets
+  Templates
+  Custom
+}
+
+enum FileStatus {
+  Draft
+  Active
+  Archived
+  Locked
+  Deleted
+}
+
+enum FileKind {
+  Markdown
+  Word
+  Excel
+  PowerPoint
+  PDF
+  Image
+  Video
+  Audio
+  CSV
+  JSON
+  YAML
+  XML
+  TXT
+  HTML
+  React
+  Python
+  Java
+  Go
+  Rust
+  SQL
+  Canvas
+  Whiteboard
+  DatabaseSchema
+  Other
+}
+
+enum FileVersionSource {
+  Manual
+  AI
+  Import
+  Upload
+}
+
+model User {
+  userId            Int     @id @default(autoincrement())
+  cognitoId         String  @unique
+  username          String  @unique
+  profilePictureUrl String?
+  email             String?
+  teamId            Int?
+
+  authoredTasks      Task[]              @relation("TaskAuthor")
+  assignedTasks      Task[]              @relation("TaskAssignee")
+  taskAssignments    TaskAssignment[]
+  attachments        Attachment[]
+  comments           Comment[]
+  team               Team?               @relation(fields: [teamId], references: [id])
+  ownedWorkspaces    Workspace[]         @relation("WorkspaceOwner")
+  workspaceMembers   WorkspaceMember[]
+  workspaceAuditLogs WorkspaceAuditLog[]
+  createdObjects     FloxObject[]        @relation("ObjectCreatedBy")
+  updatedObjects     FloxObject[]        @relation("ObjectUpdatedBy")
+  objectActivities   ObjectActivity[]
+  objectPermissions  ObjectPermission[]
+  brainExecutions    BrainExecution[]
+  brainMemories      BrainMemory[]
+  executionPlans     ExecutionPlan[]
+  ownedFloxProjects  FloxProject[]       @relation("FloxProjectOwner")
+  ownedFloxFolders   FloxFolder[]        @relation("FloxFolderOwner")
+  ownedFloxFiles     FloxFile[]          @relation("FloxFileOwner")
+  fileVersionsEdited FloxFileVersion[]   @relation("FileVersionEditor")
+}
+
+model Team {
+  id                   Int           @id @default(autoincrement())
+  teamName             String
+  productOwnerUserId   Int?
+  projectManagerUserId Int?
+  projectTeams         ProjectTeam[]
+  user                 User[]
+}
+
+model Project {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  workspaceId  String?
+  workspace    Workspace?    @relation(fields: [workspaceId], references: [id])
+  tasks        Task[]
+  projectTeams ProjectTeam[]
+}
+
+model ProjectTeam {
+  id        Int     @id @default(autoincrement())
+  teamId    Int
+  projectId Int
+  team      Team    @relation(fields: [teamId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id])
+}
+
+model Task {
+  id             Int       @id @default(autoincrement())
+  title          String
+  description    String?
+  status         String?
+  priority       String?
+  tags           String?
+  startDate      DateTime?
+  dueDate        DateTime?
+  points         Int?
+  projectId      Int
+  authorUserId   Int
+  assignedUserId Int?
+
+  project         Project          @relation(fields: [projectId], references: [id])
+  author          User             @relation("TaskAuthor", fields: [authorUserId], references: [userId])
+  assignee        User?            @relation("TaskAssignee", fields: [assignedUserId], references: [userId])
+  taskAssignments TaskAssignment[]
+  attachments     Attachment[]
+  comments        Comment[]
+}
+
+model TaskAssignment {
+  id     Int @id @default(autoincrement())
+  userId Int
+  taskId Int
+
+  user User @relation(fields: [userId], references: [userId])
+  task Task @relation(fields: [taskId], references: [id])
+}
+
+model Attachment {
+  id           Int     @id @default(autoincrement())
+  fileURL      String
+  fileName     String?
+  taskId       Int
+  uploadedById Int
+
+  task       Task @relation(fields: [taskId], references: [id])
+  uploadedBy User @relation(fields: [uploadedById], references: [userId])
+}
+
+model Comment {
+  id     Int    @id @default(autoincrement())
+  text   String
+  taskId Int
+  userId Int
+
+  task Task @relation(fields: [taskId], references: [id])
+  user User @relation(fields: [userId], references: [userId])
+}
+
+model Workspace {
+  id            String          @id @default(uuid())
+  name          String
+  slug          String          @unique
+  description   String?
+  logoUrl       String?
+  icon          String?
+  workspaceType WorkspaceType   @default(Personal)
+  industry      String?
+  website       String?
+  country       String?
+  timezone      String?
+  language      String?
+  plan          WorkspacePlan   @default(Free)
+  status        WorkspaceStatus @default(Active)
+  storageLimit  Int             @default(1073741824)
+  storageUsed   Int             @default(0)
+  ownerId       Int
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+
+  owner               User                 @relation("WorkspaceOwner", fields: [ownerId], references: [userId])
+  members             WorkspaceMember[]
+  auditLogs           WorkspaceAuditLog[]
+  projects            Project[]
+  floxProjects        FloxProject[]
+  floxFolders         FloxFolder[]
+  floxFiles           FloxFile[]
+  objects             FloxObject[]
+  objectRelationships ObjectRelationship[]
+  objectActivities    ObjectActivity[]
+  brainExecutions     BrainExecution[]
+  brainMemories       BrainMemory[]
+  brainEvents         BrainEvent[]
+  executionPlans      ExecutionPlan[]
+
+  @@unique([ownerId, name])
+  @@index([ownerId])
+  @@index([status])
+}
+
+model FloxProject {
+  id            String            @id @default(uuid())
+  workspaceId   String
+  name          String
+  slug          String
+  description   String?
+  status        ProjectStatus     @default(Draft)
+  priority      ProjectPriority   @default(Medium)
+  visibility    ProjectVisibility @default(Workspace)
+  ownerId       Int
+  projectType   ProjectType       @default(Custom)
+  industry      String?
+  budget        Float?
+  currency      String?           @default("USD")
+  startDate     DateTime?
+  dueDate       DateTime?
+  completedDate DateTime?
+  progress      Int               @default(0)
+  color         String?
+  icon          String?
+  coverImage    String?
+  aiSummary     String?
+  metadata      Json              @default("{}")
+  modules       Json              @default("{\"overview\":true,\"files\":true,\"folders\":true,\"tasks\":true,\"knowledge\":true,\"meetings\":true,\"activity\":true,\"templates\":true,\"members\":true,\"timeline\":true,\"ai\":true,\"settings\":true}")
+  objectId      String?           @unique
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  deletedAt     DateTime?
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner     User         @relation("FloxProjectOwner", fields: [ownerId], references: [userId])
+  folders   FloxFolder[]
+  files     FloxFile[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+  @@index([ownerId])
+  @@index([status])
+  @@index([projectType])
+  @@map("flox_projects")
+}
+
+model FloxFolder {
+  id             String       @id @default(uuid())
+  workspaceId    String
+  projectId      String
+  parentFolderId String?
+  name           String
+  slug           String
+  description    String?
+  icon           String?
+  color          String?
+  status         FolderStatus @default(Active)
+  folderType     FolderType   @default(General)
+  ownerId        Int
+  aiSummary      String?
+  metadata       Json         @default("{}")
+  isFavorite     Boolean      @default(false)
+  isPinned       Boolean      @default(false)
+  isLocked       Boolean      @default(false)
+  objectId       String?      @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project   FloxProject  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  owner     User         @relation("FloxFolderOwner", fields: [ownerId], references: [userId])
+  parent    FloxFolder?  @relation("FolderTree", fields: [parentFolderId], references: [id], onDelete: SetNull)
+  children  FloxFolder[] @relation("FolderTree")
+  objects   FloxObject[]
+  files     FloxFile[]
+
+  @@unique([projectId, parentFolderId, slug])
+  @@index([workspaceId])
+  @@index([projectId])
+  @@index([parentFolderId])
+  @@index([status])
+  @@map("flox_folders")
+}
+
+model FloxFile {
+  id               String     @id @default(uuid())
+  workspaceId      String
+  projectId        String
+  folderId         String?
+  objectId         String?    @unique
+  name             String
+  extension        String     @default("")
+  mimeType         String     @default("text/plain")
+  fileKind         FileKind   @default(TXT)
+  description      String?
+  status           FileStatus @default(Draft)
+  ownerId          Int
+  size             Int        @default(0)
+  checksum         String?
+  language         String?
+  encoding         String?    @default("utf-8")
+  version          Int        @default(1)
+  storageLocation  String?
+  thumbnail        String?
+  coverImage       String?
+  contentText      String?
+  aiSummary        String?
+  aiKeywords       String[]   @default([])
+  topics           String[]   @default([])
+  intent           String?
+  purpose          String?
+  entities         Json       @default("[]")
+  confidenceScore  Float?
+  generationSource String?
+  promptId         String?
+  executionPlanId  String?
+  isFavorite       Boolean    @default(false)
+  isPinned         Boolean    @default(false)
+  isLocked         Boolean    @default(false)
+  metadata         Json       @default("{}")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime?
+
+  workspace Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project   FloxProject       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  folder    FloxFolder?       @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  owner     User              @relation("FloxFileOwner", fields: [ownerId], references: [userId])
+  versions  FloxFileVersion[]
+
+  @@index([workspaceId])
+  @@index([projectId])
+  @@index([folderId])
+  @@index([status])
+  @@index([fileKind])
+  @@index([ownerId])
+  @@map("flox_files")
+}
+
+model FloxFileVersion {
+  id              String            @id @default(uuid())
+  fileId          String
+  version         Int
+  contentText     String?
+  storageLocation String?
+  size            Int               @default(0)
+  checksum        String?
+  changeSummary   String?
+  editorId        Int?
+  source          FileVersionSource @default(Manual)
+  createdAt       DateTime          @default(now())
+
+  file   FloxFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  editor User?    @relation("FileVersionEditor", fields: [editorId], references: [userId], onDelete: SetNull)
+
+  @@unique([fileId, version])
+  @@index([fileId])
+  @@index([createdAt])
+  @@map("flox_file_versions")
+}
+
+model FloxObject {
+  id          String       @id @default(uuid())
+  workspaceId String
+  folderId    String?
+  objectType  ObjectType
+  name        String
+  description String?
+  status      ObjectStatus @default(Draft)
+  createdBy   Int
+  updatedBy   Int?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  aiSummary   String?
+  tags        String[]     @default([])
+  metadata    Json         @default("{}")
+
+  workspace    Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  folder       FloxFolder?          @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  creator      User                 @relation("ObjectCreatedBy", fields: [createdBy], references: [userId])
+  updater      User?                @relation("ObjectUpdatedBy", fields: [updatedBy], references: [userId])
+  outboundRels ObjectRelationship[] @relation("ObjectRelSource")
+  inboundRels  ObjectRelationship[] @relation("ObjectRelTarget")
+  activities   ObjectActivity[]
+  permissions  ObjectPermission[]
+
+  @@index([workspaceId])
+  @@index([folderId])
+  @@index([objectType])
+  @@index([status])
+  @@index([createdBy])
+  @@map("objects")
+}
+
+model ObjectRelationship {
+  id               Int                    @id @default(autoincrement())
+  workspaceId      String
+  sourceObjectId   String
+  targetObjectId   String
+  relationshipType ObjectRelationshipType
+  createdAt        DateTime               @default(now())
+
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  source    FloxObject @relation("ObjectRelSource", fields: [sourceObjectId], references: [id], onDelete: Cascade)
+  target    FloxObject @relation("ObjectRelTarget", fields: [targetObjectId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([sourceObjectId])
+  @@index([targetObjectId])
+  @@map("object_relationships")
+}
+
+model ObjectActivity {
+  id           Int                @id @default(autoincrement())
+  objectId     String
+  workspaceId  String
+  userId       Int?
+  activityType ObjectActivityType
+  metadata     Json?
+  createdAt    DateTime           @default(now())
+
+  object    FloxObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [userId], onDelete: SetNull)
+
+  @@index([objectId])
+  @@index([workspaceId])
+  @@index([createdAt])
+  @@map("object_activities")
+}
+
+model ObjectPermission {
+  id        Int      @id @default(autoincrement())
+  objectId  String
+  userId    Int
+  actions   String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  object FloxObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([objectId, userId])
+  @@index([userId])
+  @@map("object_permissions")
+}
+
+model WorkspaceMember {
+  id          Int                 @id @default(autoincrement())
+  workspaceId String
+  userId      Int
+  role        WorkspaceMemberRole @default(Viewer)
+  joinedAt    DateTime            @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model WorkspaceAuditLog {
+  id          Int      @id @default(autoincrement())
+  workspaceId String
+  userId      Int?
+  action      String
+  ip          String?
+  device      String?
+  browser     String?
+  metadata    String?
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [userId], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([createdAt])
+}
+
+model BrainExecution {
+  id              String               @id @default(uuid())
+  workspaceId     String
+  userId          Int
+  prompt          String
+  intent          BrainIntent
+  plan            Json                 @default("[]")
+  contextSnapshot Json                 @default("{}")
+  agent           BrainAgentKind       @default(General)
+  modelProvider   BrainModelProvider   @default(LocalStub)
+  modelId         String               @default("local-stub-v1")
+  toolsUsed       Json                 @default("[]")
+  result          Json?
+  resultObjectIds String[]             @default([])
+  tokenUsage      Int?
+  costCents       Int?
+  error           String?
+  durationMs      Int                  @default(0)
+  status          BrainExecutionStatus @default(Planned)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  events    BrainEvent[]
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("brain_executions")
+}
+
+model BrainMemory {
+  id          String           @id @default(uuid())
+  workspaceId String
+  userId      Int?
+  key         String
+  value       Json
+  scope       BrainMemoryScope
+  /// Stable uniqueness key: "workspace" or "user:<id>"
+  ownerKey    String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([workspaceId, ownerKey, key])
+  @@index([workspaceId])
+  @@index([userId])
+  @@map("brain_memories")
+}
+
+model BrainEvent {
+  id          Int      @id @default(autoincrement())
+  workspaceId String
+  executionId String?
+  type        String
+  payload     Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  workspace Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  execution BrainExecution? @relation(fields: [executionId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([executionId])
+  @@index([createdAt])
+  @@map("brain_events")
+}
+
+model ExecutionPlan {
+  id                String              @id @default(uuid())
+  workspaceId       String
+  userId            Int
+  prompt            String
+  goal              String
+  summary           String?
+  intent            BrainIntent
+  complexity        PlanComplexity      @default(Simple)
+  strategy          PlanStrategy        @default(Sequential)
+  estimatedDuration Int                 @default(0)
+  estimatedTokens   Int                 @default(0)
+  estimatedCost     Int                 @default(0)
+  status            ExecutionPlanStatus @default(Draft)
+  approvalRequired  Boolean             @default(false)
+  dependencies      Json                @default("[]")
+  warnings          Json                @default("[]")
+  requiredAgents    String[]            @default([])
+  requiredModels    String[]            @default([])
+  requiredTools     String[]            @default([])
+  requiredObjects   String[]            @default([])
+  selectedObjectIds String[]            @default([])
+  rootObjectId      String?
+  brainExecutionId  String?
+  metadata          Json                @default("{}")
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  workspace Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User                @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  steps     ExecutionPlanStep[]
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("execution_plans")
+}
+
+model ExecutionPlanStep {
+  id               String              @id @default(uuid())
+  planId           String
+  order            Int
+  title            String
+  description      String?
+  agent            BrainAgentKind      @default(General)
+  tool             String
+  model            String?
+  status           ExecutionStepStatus @default(Pending)
+  estimatedTime    Int                 @default(0)
+  estimatedCost    Int                 @default(0)
+  retryCount       Int                 @default(0)
+  maxRetries       Int                 @default(3)
+  dependsOn        String[]            @default([])
+  outputObjects    String[]            @default([])
+  approvalRequired Boolean             @default(false)
+  error            String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  plan ExecutionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@index([order])
+  @@map("execution_plan_steps")
+}

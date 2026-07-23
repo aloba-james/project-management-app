@@ -1,113 +1,29 @@
-import { useGetTasksQuery, useUpdateTaskStatusMutation } from "@/state/api";
+import {
+  Task as TaskType,
+  useGetTasksQuery,
+  useUpdateTaskStatusMutation,
+} from "@/state/api";
 import React from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-// import { Task as TaskType } from "@state/api";
 import { EllipsisVertical, MessageSquareMore, Plus } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
+import { resolveMediaUrl } from "@/lib/media";
 
 type BoardProps = {
   id: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
+  onTaskClick?: (taskId: number) => void;
 };
-
-interface TaskType {
-  id: number;
-  title: string;
-  description?: string;
-  status?: Status;
-  priority?: Priority;
-  tags?: string;
-  startDate?: string;
-  dueDate?: string;
-  points?: number;
-  projectId: number;
-  authorUserId?: number;
-  assignedUserId?: number;
-
-  author?: User;
-  assignee?: User;
-  comments?: Comment[];
-  attachments?: Attachment[];
-}
-
-//  interface Project {
-//   id: number;
-//   name: string;
-//   description?: string;
-//   startDate?: string;
-//   endDate?: string;
-// }
-
- enum Priority {
-  Urgent = "Urgent",
-  High = "High",
-  Medium = "Medium",
-  Low = "Low",
-  Backlog = "Backlog",
-}
-
- enum Status {
-  ToDo = "To Do",
-  WorkInProgress = "Work In Progress",
-  UnderReview = "Under Review",
-  Completed = "Completed",
-}
-
- interface User {
-  userId?: number;
-  username: string;
-  email: string;
-  profilePictureUrl?: string;
-  cognitoId?: string;
-  teamId?: number;
-}
-
- interface Attachment {
-  id: number;
-  fileURL: string;
-  fileName: string;
-  taskId: number;
-  uploadedById: number;
-}
-
- interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  status?: Status;
-  priority?: Priority;
-  tags?: string;
-  startDate?: string;
-  dueDate?: string;
-  points?: number;
-  projectId: number;
-  authorUserId?: number;
-  assignedUserId?: number;
-
-  author?: User;
-  assignee?: User;
-  comments?: Comment[];
-  attachments?: Attachment[];
-}
-
-//  interface SearchResults {
-//   tasks?: Task[];
-//   projects?: Project[];
-//   users?: User[];
-// }
-
-//  interface Team {
-//   teamId: number;
-//   teamName: string;
-//   productOwnerUserId?: number;
-//   projectManagerUserId?: number;
-// }
 
 const taskStatus = ["To Do", "Work In Progress", "Under Review", "Completed"];
 
-const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
+const BoardView = ({
+  id,
+  setIsModalNewTaskOpen,
+  onTaskClick,
+}: BoardProps) => {
   const {
     data: tasks,
     isLoading,
@@ -131,8 +47,9 @@ const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
             status={status}
             tasks={tasks || []}
             moveTask={moveTask}
-            setIsModalNewTaskOpen={setIsModalNewTaskOpen}          
-            />
+            setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+            onTaskClick={onTaskClick}
+          />
         ))}
       </div>
     </DndProvider>
@@ -144,6 +61,7 @@ type TaskColumnProps = {
   tasks: TaskType[];
   moveTask: (taskId: number, toStatus: string) => void;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
+  onTaskClick?: (taskId: number) => void;
 };
 
 const TaskColumn = ({
@@ -151,6 +69,7 @@ const TaskColumn = ({
   tasks,
   moveTask,
   setIsModalNewTaskOpen,
+  onTaskClick,
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
@@ -197,7 +116,7 @@ const TaskColumn = ({
               <EllipsisVertical size={26} />
             </button>
             <button
-              className="flx h-6 w-6 items-center justify-center rounded bg-gray-200 dark:bg-dark-tertiary dark:text-white"
+              className="flex h-6 w-6 items-center justify-center rounded bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-dark-tertiary dark:text-blue-300 dark:hover:bg-blue-900/40"
               onClick={() => setIsModalNewTaskOpen(true)}
             >
               <Plus size={16} />
@@ -209,7 +128,7 @@ const TaskColumn = ({
       {tasks
         .filter((task) => task.status === status)
         .map((task) => (
-          <Task key={task.id} task={task} />
+          <Task key={task.id} task={task} onTaskClick={onTaskClick} />
         ))}
     </div>
   );
@@ -217,10 +136,10 @@ const TaskColumn = ({
 
 type TaskProps = {
   task: TaskType;
+  onTaskClick?: (taskId: number) => void;
 };
 
-const Task = ({ task }: TaskProps) => {
-  console.log("🚀 ~ Task ~ task:", task);
+const Task = ({ task, onTaskClick }: TaskProps) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id },
@@ -264,17 +183,19 @@ const Task = ({ task }: TaskProps) => {
       ref={(instance) => {
         drag(instance);
       }}
-      className={`roundede-md dark:bg-dark-sceondary mb-4 bg-white shadow ${
+      onClick={() => onTaskClick?.(task.id)}
+      className={`mb-4 cursor-pointer rounded-md bg-white shadow dark:bg-dark-secondary ${
         isDragging ? "opacity-50" : "opacity-100"
       }`}
     >
       {task.attachments && task.attachments.length > 0 && (
         <Image
-          src={`/${task.attachments[0].fileURL}`}
+          src={resolveMediaUrl(task.attachments[0].fileURL)}
           alt={task.attachments[0].fileName}
           width={400}
           height={200}
           className="h-auto w-full rounded-t-md"
+          unoptimized
         />
       )}
       <div className="p-4 md:p-6">
@@ -293,7 +214,14 @@ const Task = ({ task }: TaskProps) => {
               ))}
             </div>
           </div>
-          <button className="flex h-6 w-4 flex-shrink-0 items-center justify-center dark:text-neutral-500">
+          <button
+            type="button"
+            className="flex h-6 w-4 flex-shrink-0 items-center justify-center dark:text-neutral-500"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTaskClick?.(task.id);
+            }}
+          >
             <EllipsisVertical size={26} />
           </button>
         </div>
@@ -319,24 +247,26 @@ const Task = ({ task }: TaskProps) => {
         {/* USERS */}
         <div className="mt-3 flex items-center justify-between">
           <div className="flex -space-x-[6px] overflow-hidden">
-            {task.assignee && (
+            {task.assignee?.profilePictureUrl && (
               <Image
                 key={task.assignee.userId}
-                src={`/${task.assignee.profilePictureUrl}`}
+                src={resolveMediaUrl(task.assignee.profilePictureUrl)}
                 alt={task.assignee.username}
                 width={30}
                 height={30}
-                className="border-whote h-8 w-8 rounded-full border-2 object-cover dark:border-dark-secondary"
+                className="h-8 w-8 rounded-full border-2 border-white object-cover dark:border-dark-secondary"
+                unoptimized
               />
             )}
-            {task.author && (
+            {task.author?.profilePictureUrl && (
               <Image
                 key={task.author.userId}
-                src={`/${task.author.profilePictureUrl}`}
+                src={resolveMediaUrl(task.author.profilePictureUrl)}
                 alt={task.author.username}
                 width={30}
                 height={30}
-                className="border-whote h-8 w-8 rounded-full border-2 object-cover dark:border-dark-secondary"
+                className="h-8 w-8 rounded-full border-2 border-white object-cover dark:border-dark-secondary"
+                unoptimized
               />
             )}
           </div>

@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import ProjectHeader from "@/app/projects/ProjectHeader";
 import Board from "../BoardView";
-import List from '../ListView'
+import List from "../ListView";
 import Timeline from "../TimelineView";
-import Table from '../TableView'
+import Table from "../TableView";
+import ModalNewTask from "../ModalNewTask";
+import ModalTaskDetails from "../ModalTaskDetails";
 
 type Props = {
   params: { id: string };
@@ -15,23 +17,76 @@ const Project = ({ params }: Props) => {
   const { id } = params;
   const [activeTab, setActiveTab] = useState("Board");
   const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
-  console.log("🚀 ~ Project ~ isModalNewTaskOpen:", isModalNewTaskOpen)
+  const [newTaskDefaults, setNewTaskDefaults] = useState<{
+    startDate?: string;
+    dueDate?: string;
+  }>({});
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+
+  const openNewTask = (defaults?: { startDate?: string; dueDate?: string }) => {
+    setNewTaskDefaults(defaults ?? {});
+    setIsModalNewTaskOpen(true);
+  };
+
+  const closeNewTask = () => {
+    setIsModalNewTaskOpen(false);
+    setNewTaskDefaults({});
+  };
 
   return (
     <div>
-      {/* MODAL NEW TASKS */}
-      <ProjectHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ModalNewTask
+        isOpen={isModalNewTaskOpen}
+        onClose={closeNewTask}
+        id={id}
+        initialStartDate={newTaskDefaults.startDate}
+        initialDueDate={newTaskDefaults.dueDate}
+      />
+      <ModalTaskDetails
+        taskId={selectedTaskId}
+        isOpen={selectedTaskId !== null}
+        onClose={() => setSelectedTaskId(null)}
+      />
+      <ProjectHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        projectId={id}
+      />
       {activeTab === "Board" && (
-        <Board id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Board
+          id={id}
+          setIsModalNewTaskOpen={(open) =>
+            open ? openNewTask() : closeNewTask()
+          }
+          onTaskClick={setSelectedTaskId}
+        />
       )}
       {activeTab === "List" && (
-        <List id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <List
+          id={id}
+          setIsModalNewTaskOpen={(open) =>
+            open ? openNewTask() : closeNewTask()
+          }
+          onTaskClick={setSelectedTaskId}
+        />
       )}
       {activeTab === "Timeline" && (
-        <Timeline id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Timeline
+          id={id}
+          setIsModalNewTaskOpen={(open) =>
+            open ? openNewTask() : closeNewTask()
+          }
+          onTaskClick={setSelectedTaskId}
+        />
       )}
       {activeTab === "Table" && (
-        <Table id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Table
+          id={id}
+          setIsModalNewTaskOpen={(open) =>
+            open ? openNewTask() : closeNewTask()
+          }
+          onTaskClick={setSelectedTaskId}
+        />
       )}
     </div>
   );

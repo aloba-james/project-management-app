@@ -1,145 +1,104 @@
 import { Task } from "@/state/api";
+import { resolveMediaUrl } from "@/lib/media";
 import { format } from "date-fns";
 import Image from "next/image";
 import React from "react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type Props = {
   task: Task;
+  onClick?: (taskId: number) => void;
 };
 
-const TaskCard = ({ task }: Props) => {
+const TaskCard = ({ task, onClick }: Props) => {
   return (
-    <div className="mb-3 rounded-lg bg-white p-4 shadow-md transition-all hover:shadow-lg dark:bg-dark-secondary dark:text-white">
-      {/* Attachments section */}
-      {task.attachments && task.attachments.length > 0 && (
-        <div className="mb-4">
-          <strong className="mb-2 block text-sm font-medium">
-            Attachments:{" "}
-          </strong>
+    <Card
+      className={onClick ? "mb-3 cursor-pointer transition-shadow hover:shadow-md" : "mb-3"}
+      onClick={() => onClick?.(task.id)}
+      role={onClick ? "button" : undefined}
+    >
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">{task.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        {task.attachments && task.attachments.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {task.attachments.map((attachment) => (
-              <div key={attachment.id} className="relative h-32 w-full sm:w-48">
+              <div key={attachment.id} className="relative h-28 w-full sm:w-40">
                 <Image
-                  src={
-                    attachment.fileURL.startsWith("http")
-                      ? attachment.fileURL
-                      : `/${attachment.fileURL}`
-                  }
+                  src={resolveMediaUrl(attachment.fileURL)}
                   alt={attachment.fileName}
                   fill
                   className="rounded-md object-cover"
-                  sizes="(max-width: 640px) 100vw, 200px"
+                  sizes="(max-width: 640px) 100vw, 160px"
+                  unoptimized
                 />
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Task details */}
-      <div className="space-y-2 text-sm">
-        <div>
-          <strong className="font-medium">Title: </strong>
-          <span className="block">{task.title}</span>
-        </div>
-
-        <div>
-          <strong className="font-medium">Description: </strong>
-          <span className="block text-gray-600 dark:text-gray-300">
-            {task.description || "No description"}
-          </span>
-        </div>
-
-        <div className="flex flex-wrap gap-4">
-          <div>
-            <strong className="font-medium">Status: </strong>
-            <span
-              className={`inline-block rounded-full px-2 py-1 text-xs ${
-                task.status === "Completed"
-                  ? "bg-green-100 text-green-800"
-                  : task.status === "Work In Progress"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-gray-100 text-gray-800"
-              }`}
-            >
-              {task.status || "Not set"}
-            </span>
-          </div>
-
-          <div>
-            <strong className="font-medium">Priority: </strong>
-            <span
-              className={`inline-block rounded-full px-2 py-1 text-xs ${
-                task.priority === "High"
-                  ? "bg-red-100 text-red-800"
-                  : task.priority === "Urgent"
-                    ? "bg-purple-100 text-purple-800"
-                    : "bg-gray-100 text-gray-800"
-              }`}
-            >
-              {task.priority || "Not set"}
-            </span>
-          </div>
-        </div>
-
-        {task.tags && (
-          <div>
-            <strong className="font-medium">Tags: </strong>
-            <div className="mt-1 flex flex-wrap gap-1">
-              {typeof task.tags === "string"
-                ? task.tags.split(",").map((tag, index) => (
-                    <span
-                      key={index}
-                      className="rounded-full bg-gray-100 px-2 py-1 text-xs"
-                    >
-                      {tag.trim()}
-                    </span>
-                  ))
-                // : Array.isArray(task.tags)
-                //   ? task.tags.map((tag: string, index: number) => (
-                //       <span
-                //         key={index}
-                //         className="rounded-full bg-gray-100 px-2 py-1 text-xs"
-                //       >
-                //         {tag}
-                //       </span>
-                //     ))
-                  : null}
-            </div>
-          </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <p className="text-muted-foreground">
+          {task.description || "No description"}
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="secondary">{task.status || "Not set"}</Badge>
+          <Badge variant="outline">{task.priority || "Not set"}</Badge>
+          {typeof task.tags === "string" &&
+            task.tags.split(",").filter(Boolean).map((tag) => (
+              <Badge key={tag.trim()} variant="outline">
+                {tag.trim()}
+              </Badge>
+            ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
           <div>
-            <strong className="font-medium">Start Date: </strong>
-            <span className="block">
+            <p className="font-medium text-foreground">Start</p>
+            <p>
               {task.startDate
                 ? format(new Date(task.startDate), "PP")
                 : "Not set"}
-            </span>
+            </p>
           </div>
           <div>
-            <strong className="font-medium">Due Date: </strong>
-            <span className="block">
+            <p className="font-medium text-foreground">Due</p>
+            <p>
               {task.dueDate ? format(new Date(task.dueDate), "PP") : "Not set"}
-            </span>
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <strong className="font-medium">Author: </strong>
-            <span className="block">{task.author?.username || "Unknown"}</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-7 w-7">
+              <AvatarFallback className="text-[10px]">
+                {(task.author?.username || "?").slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-xs">{task.author?.username || "Unknown"}</span>
           </div>
-          <div>
-            <strong className="font-medium">Assignee: </strong>
-            <span className="block">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-7 w-7">
+              <AvatarFallback className="text-[10px]">
+                {(task.assignee?.username || "UA").slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-xs">
               {task.assignee?.username || "Unassigned"}
             </span>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

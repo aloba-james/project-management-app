@@ -1,7 +1,12 @@
-import { X } from "lucide-react";
+"use client";
+
 import React from "react";
-import ReactDOM from "react-dom";
-import Header from "../Header";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Props = {
   children: React.ReactNode;
@@ -11,25 +16,15 @@ type Props = {
 };
 
 const Modal = ({ children, isOpen, onClose, name }: Props) => {
-  if (!isOpen) return null;
-  return ReactDOM.createPortal(
-    <div className="fixed inset-0 flex h-full items-center justify-center overflow-y-auto bg-gray-600 bg-opacity-50 p-4">
-        <div className="w-full max-w-2xl rounded-lg bg-white p-4 shadow-lg dark:bg-dark-secondary">
-            <Header 
-            name={name}
-            buttonComponent={
-                <button className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-primary text-white hover:bg-blue-600" 
-                onClick={onClose}
-                >
-                    <X size={18} />
-                </button>
-            }
-            isSmallText
-            />
-            {children}
-        </div>
-    </div>,
-    document.body
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{name}</DialogTitle>
+        </DialogHeader>
+        {children}
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -1,0 +1,751 @@
+# Cursor Implementation Guide
+# Feature: FR-001 - Workspace Management
+# Version: 1.0
+# Product: Flox
+
+---
+
+# Overview
+
+Implement the Workspace Management module for Flox.
+
+A Workspace is the highest-level container within Flox.
+
+Everything belongs to a workspace.
+
+Examples:
+
+- Personal
+- Startup
+- Client
+- Business
+- School
+- Research
+
+Every authenticated user must have at least one workspace.
+
+---
+
+# Objectives
+
+Build a complete Workspace Management system including:
+
+- Create Workspace
+- List Workspaces
+- Update Workspace
+- Archive Workspace
+- Delete Workspace (Soft Delete)
+- Restore Workspace
+- Workspace Dashboard
+- Workspace Settings
+
+The implementation must be production-ready.
+
+---
+
+# Tech Stack
+
+Frontend
+- Next.js App Router
+- TypeScript
+- TailwindCSS
+- shadcn/ui
+- TanStack Query
+- Zustand
+
+Backend
+
+- Next.js Route Handlers
+or
+
+- tRPC
+
+Database
+
+- PostgreSQL
+
+ORM
+
+- Prisma
+
+Authentication
+
+- Clerk (preferred)
+or
+- Supabase Auth
+
+Validation
+
+- Zod
+
+---
+
+# Folder Structure
+
+apps/web
+
+app/
+
+(workspace)/
+
+dashboard/
+
+workspaces/
+
+new/
+
+[id]/
+
+settings/
+
+components/
+
+workspace/
+
+WorkspaceCard.tsx
+
+WorkspaceGrid.tsx
+
+CreateWorkspaceDialog.tsx
+
+DeleteWorkspaceDialog.tsx
+
+WorkspaceHeader.tsx
+
+WorkspaceSidebar.tsx
+
+WorkspaceEmptyState.tsx
+
+hooks/
+
+useWorkspaces.ts
+
+services/
+
+workspace.service.ts
+
+validators/
+
+workspace.schema.ts
+
+types/
+
+workspace.ts
+
+---
+
+# Database Schema
+
+Workspace
+
+id
+
+UUID
+
+Primary Key
+
+name
+
+String
+
+Required
+
+slug
+
+String
+
+Unique
+
+description
+
+Text
+
+Nullable
+
+logoUrl
+
+String
+
+Nullable
+
+icon
+
+String
+
+Nullable
+
+workspaceType
+
+Enum
+
+Personal
+
+Business
+
+Startup
+
+Software
+
+Healthcare
+
+Education
+
+Marketing
+
+Research
+
+Finance
+
+Legal
+
+Custom
+
+industry
+
+String
+
+Nullable
+
+website
+
+String
+
+Nullable
+
+country
+
+String
+
+Nullable
+
+timezone
+
+String
+
+Nullable
+
+language
+
+String
+
+Nullable
+
+plan
+
+Free
+
+Pro
+
+Enterprise
+
+status
+
+Active
+
+Archived
+
+Deleted
+
+storageLimit
+
+Integer
+
+storageUsed
+
+Integer
+
+ownerId
+
+UUID
+
+FK User
+
+createdAt
+
+updatedAt
+
+deletedAt
+
+Nullable
+
+---
+
+Workspace Members
+
+workspaceId
+
+userId
+
+role
+
+Owner
+
+Admin
+
+Manager
+
+Editor
+
+Viewer
+
+Guest
+
+joinedAt
+
+---
+
+# Prisma Relationships
+
+Workspace
+
+hasMany
+
+Projects
+
+Folders
+
+Files
+
+Templates
+
+Knowledge
+
+Members
+
+Automations
+
+AuditLogs
+
+---
+
+# API Endpoints
+
+POST
+
+/api/v1/workspaces
+
+Create Workspace
+
+---
+
+GET
+
+/api/v1/workspaces
+
+Return all workspaces belonging to current user.
+
+---
+
+GET
+
+/api/v1/workspaces/:id
+
+Return workspace details.
+
+---
+
+PATCH
+
+/api/v1/workspaces/:id
+
+Update workspace.
+
+---
+
+DELETE
+
+/api/v1/workspaces/:id
+
+Soft delete workspace.
+
+---
+
+POST
+
+/api/v1/workspaces/:id/restore
+
+Restore workspace.
+
+---
+
+POST
+
+/api/v1/workspaces/:id/archive
+
+Archive workspace.
+
+---
+
+# Validation Rules
+
+Workspace Name
+
+Required
+
+Minimum
+
+3
+
+Maximum
+
+100
+
+Trim whitespace
+
+Cannot duplicate another workspace owned by user.
+
+Slug
+
+Auto-generate.
+
+Must be unique.
+
+Lowercase.
+
+Replace spaces with "-".
+
+Example
+
+Purple Plus
+
+↓
+
+purple-plus
+
+---
+
+# Business Rules
+
+Every user owns at least one workspace.
+
+Deleting a workspace is soft delete only.
+
+Archived workspaces are read-only.
+
+Workspace owners cannot remove themselves.
+
+Workspace names are unique per owner.
+
+---
+
+# AI Behaviour
+
+When creating a workspace,
+
+the AI Brain should receive:
+
+Workspace Name
+
+Description
+
+Optional prompt
+
+Example
+
+"I am building hospital software."
+
+The AI should return
+
+Workspace Type
+
+Suggested Projects
+
+Suggested Folder Structure
+
+Suggested Templates
+
+Suggested Knowledge Base
+
+Suggested Automations
+
+Example
+
+Healthcare Workspace
+
+↓
+
+Projects
+
+Hospital Implementation
+
+Sales
+
+Engineering
+
+Customer Success
+
+↓
+
+Templates
+
+Proposal
+
+Requirements
+
+Deployment Checklist
+
+Training Guide
+
+↓
+
+Knowledge
+
+Policies
+
+Meeting Notes
+
+Architecture
+
+---
+
+Do NOT automatically create these.
+
+Return recommendations first.
+
+User must approve.
+
+---
+
+# UI
+
+Dashboard
+
+Display
+
+Workspace Grid
+
+Workspace Card
+
+Workspace Search
+
+Recent Activity
+
+New Workspace Button
+
+---
+
+Create Workspace Modal
+
+Fields
+
+Workspace Name
+
+Description
+
+Optional AI Prompt
+
+Example Prompt
+
+"I'm creating a workspace for my startup."
+
+Buttons
+
+Generate Suggestions
+
+Create
+
+Cancel
+
+---
+
+Workspace Card
+
+Display
+
+Logo
+
+Workspace Name
+
+Description
+
+Member Count
+
+Project Count
+
+Storage Used
+
+Last Activity
+
+---
+
+Workspace Settings
+
+Tabs
+
+General
+
+Members
+
+Storage
+
+Permissions
+
+AI
+
+Danger Zone
+
+---
+
+# Empty State
+
+Illustration
+
+Headline
+
+Create your first workspace
+
+Description
+
+Workspaces help organize projects, files, templates and AI memory.
+
+CTA
+
+Create Workspace
+
+---
+
+# Error Handling
+
+Duplicate Name
+
+Show inline validation.
+
+Workspace Not Found
+
+404
+
+Unauthorized
+
+403
+
+Unexpected
+
+500
+
+---
+
+# Audit Log
+
+Log
+
+Workspace Created
+
+Workspace Updated
+
+Workspace Archived
+
+Workspace Deleted
+
+Workspace Restored
+
+Include
+
+User
+
+Timestamp
+
+IP
+
+Device
+
+Browser
+
+---
+
+# Testing
+
+Unit Tests
+
+Workspace Validation
+
+Slug Generation
+
+Permission Checks
+
+Soft Delete
+
+Archive
+
+API Tests
+
+Create
+
+Update
+
+Delete
+
+Restore
+
+UI Tests
+
+Modal
+
+Cards
+
+Dashboard
+
+Settings
+
+---
+
+# Future Compatibility
+
+Design the module so future features plug in without breaking.
+
+Future Modules
+
+Projects
+
+Folders
+
+Files
+
+Templates
+
+AI Memory
+
+Knowledge Base
+
+Agents
+
+Automations
+
+Notifications
+
+Billing
+
+Marketplace
+
+MCP Context
+
+Each module must reference Workspace ID.
+
+Never build anything globally.
+
+Everything belongs to a Workspace.
+
+---
+
+# Engineering Principle
+
+Do NOT think of a Workspace as just another table.
+
+Think of it as an isolated operating environment.
+
+Every AI memory
+
+Every file
+
+Every prompt
+
+Every project
+
+Every automation
+
+Every agent
+
+Lives inside a workspace.
+
+The workspace is the security boundary, context boundary, billing boundary, and AI memory boundary.
+
+Everything starts here.

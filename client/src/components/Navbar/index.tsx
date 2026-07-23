@@ -1,106 +1,181 @@
-import React from "react";
-import { Menu, Moon, Search, Settings, Sun } from "lucide-react";
+"use client";
+
+import React, { useState } from "react";
+import { Menu, Moon, Search, Settings, Sun, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { useAppDispatch, useAppSelector } from "@/app/redux";
 import { setIsDarkMode, setIsSidebarCollapsed } from "@/state";
-// import { useGetAuthUserQuery } from "@/state/api";
-// import { signOut } from "aws-amplify/auth";
-// import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
+
+const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 const Navbar = () => {
+  if (clerkEnabled) {
+    return <ClerkNavbarShell />;
+  }
+  return <NextAuthNavbarShell />;
+};
+
+function NavbarChrome({
+  displayName,
+  avatarUrl,
+  onSignOut,
+}: {
+  displayName: string;
+  avatarUrl?: string | null;
+  onSignOut: () => void;
+}) {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [searchValue, setSearchValue] = useState("");
   const isSidebarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed,
   );
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
 
-  // const { data: currentUser } = useGetAuthUserQuery({});
-  // const handleSignOut = async () => {
-  //   try {
-  //     await signOut();
-  //   } catch (error) {
-  //     console.error("Error signing out: ", error);
-  //   }
-  // };
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchValue.trim();
+    router.push(query ? `/search?q=${encodeURIComponent(query)}` : "/search");
+  };
 
-  // if (!currentUser) return null;
-  // const currentUserDetails = currentUser?.userDetails;
+  const initials = displayName
+    .split(/\s+/)
+    .map((p) => p[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <div className="flex items-center justify-between bg-white px-4 py-3 dark:bg-black">
-      {/* Search Bar */}
-      <div className="flex items-center gap-8">
-       
-          <button
-            onClick={() => dispatch(setIsSidebarCollapsed(!isSidebarCollapsed))}
-          >
-            <Menu className="h-8 w-8 dark:text-white" />
-          </button>
-       
-        <div className="relative flex h-min w-[200px]">
-          <Search className="absolute left-[4px] top-1/2 mr-2 h-5 w-5 -translate-y-1/2 transform cursor-pointer dark:text-white" />
-          <input
-            className="w-full rounded border-none bg-gray-100 p-2 pl-8 placeholder-gray-500 focus:border-transparent focus:outline-none dark:bg-gray-700 dark:text-white dark:placeholder-white"
+    <div className="flex items-center justify-between border-b bg-card px-4 py-3">
+      <div className="flex items-center gap-4">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => dispatch(setIsSidebarCollapsed(!isSidebarCollapsed))}
+          aria-label="Toggle sidebar"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
+        <form
+          className="relative hidden w-[220px] sm:block"
+          onSubmit={handleSearchSubmit}
+        >
+          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="bg-muted/50 pl-8"
             type="search"
-            placeholder="Search..."
+            placeholder="Search everything…"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
           />
-        </div>
+        </form>
       </div>
 
-      {/* Icons */}
-      <div className="flex items-center">
-        <button
+      <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
           onClick={() => dispatch(setIsDarkMode(!isDarkMode))}
-          className={
-            isDarkMode
-              ? `rounded p-2 dark:hover:bg-gray-700`
-              : `rounded p-2 hover:bg-gray-100`
-          }
+          aria-label="Toggle theme"
         >
           {isDarkMode ? (
-            <Sun className="h-6 w-6 cursor-pointer dark:text-white" />
+            <Sun className="h-5 w-5" />
           ) : (
-            <Moon className="h-6 w-6 cursor-pointer dark:text-white" />
+            <Moon className="h-5 w-5" />
           )}
-        </button>
-        <Link
-          href="/settings"
-          className={
-            isDarkMode
-              ? `h-min w-min rounded p-2 dark:hover:bg-gray-700`
-              : `h-min w-min rounded p-2 hover:bg-gray-100`
-          }
-        >
-          <Settings className="h-6 w-6 cursor-pointer dark:text-white" />
-        </Link>
-        <div className="ml-2 mr-5 hidden min-h-[2em] w-[0.1rem] bg-gray-200 md:inline-block"></div>
-        {/* <div className="hidden items-center justify-between md:flex">
-          <div className="align-center flex h-9 w-9 justify-center">
-            {!!currentUserDetails?.profilePictureUrl ? (
-              <Image
-                src={`https://pm-s3-images.s3.us-east-2.amazonaws.com/${currentUserDetails?.profilePictureUrl}`}
-                alt={currentUserDetails?.username || "User Profile Picture"}
-                width={100}
-                height={50}
-                className="h-full rounded-full object-cover"
-              />
-            ) : (
-              <User className="h-6 w-6 cursor-pointer self-center rounded-full dark:text-white" />
-            )}
-          </div>
-          <span className="mx-3 text-gray-800 dark:text-white">
-            {currentUserDetails?.username}
-          </span>
-          <button
-            className="hidden rounded bg-blue-400 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 md:block"
-            onClick={handleSignOut}
-          >
-            Sign out
-          </button>
-        </div> */}
+        </Button>
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/settings" aria-label="Settings">
+            <Settings className="h-5 w-5" />
+          </Link>
+        </Button>
+
+        <Separator orientation="vertical" className="mx-2 hidden h-6 md:block" />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="hidden gap-2 px-2 md:flex"
+              aria-label="Account menu"
+            >
+              <Avatar className="h-8 w-8">
+                {avatarUrl ? (
+                  <AvatarImage src={avatarUrl} alt={displayName} />
+                ) : null}
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+              <span className="max-w-[10rem] truncate text-sm font-medium">
+                {displayName}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/settings">Settings</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
-};
+}
+
+function NextAuthNavbarShell() {
+  const { data: session } = useSession();
+  const displayName =
+    session?.user?.username ||
+    session?.user?.name ||
+    session?.user?.email ||
+    "User";
+  return (
+    <NavbarChrome
+      displayName={displayName}
+      avatarUrl={session?.user?.image}
+      onSignOut={() => void signOut({ callbackUrl: "/login" })}
+    />
+  );
+}
+
+function ClerkNavbarShell() {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const displayName =
+    user?.fullName ||
+    user?.username ||
+    user?.primaryEmailAddress?.emailAddress ||
+    "User";
+  return (
+    <NavbarChrome
+      displayName={displayName}
+      avatarUrl={user?.imageUrl}
+      onSignOut={() => void signOut({ redirectUrl: "/login" })}
+    />
+  );
+}
 
 export default Navbar;

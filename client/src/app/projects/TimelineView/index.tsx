@@ -1,4 +1,5 @@
 import { useAppSelector } from "@/app/redux";
+import { Button } from "@/components/ui/button";
 import { useGetTasksQuery } from "@/state/api";
 import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
@@ -7,11 +8,12 @@ import React, { useMemo, useState } from "react";
 type Props = {
   id: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
+  onTaskClick?: (taskId: number) => void;
 };
 
 type TaskTypeItems = "task" | "milestone" | "project";
 
-const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
+const Timeline = ({ id, setIsModalNewTaskOpen, onTaskClick }: Props) => {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
   const {
     data: tasks,
@@ -47,6 +49,12 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
     }));
   };
 
+  const handleTaskBarClick = (task: { id: string }) => {
+    if (!onTaskClick) return;
+    const numericId = Number(task.id.replace("Task-", ""));
+    if (!Number.isNaN(numericId)) onTaskClick(numericId);
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (error || !tasks) return <div>An error occurred while fetching tasks</div>;
 
@@ -69,24 +77,30 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-md bg-white shadow dark:bg-dark-secondary dark:text-white">
+      <div className="overflow-hidden rounded-md border bg-card text-card-foreground shadow">
         <div className="timeline">
-          <Gantt
-            tasks={ganttTasks}
-            {...displayOptions}
-            columnWidth={displayOptions.viewMode === ViewMode.Month ? 150 : 100}
-            listCellWidth="100px"
-            barBackgroundColor={isDarkMode ? "#101214" : "#aeb8c2"}
-            barBackgroundSelectedColor={isDarkMode ? "#000" : "#9ba1a6"}
-          />
+          {ganttTasks.length > 0 ? (
+            <Gantt
+              tasks={ganttTasks}
+              {...displayOptions}
+              columnWidth={
+                displayOptions.viewMode === ViewMode.Month ? 150 : 100
+              }
+              listCellWidth="100px"
+              barBackgroundColor={isDarkMode ? "#101214" : "#aeb8c2"}
+              barBackgroundSelectedColor={isDarkMode ? "#000" : "#9ba1a6"}
+              onClick={handleTaskBarClick}
+            />
+          ) : (
+            <p className="p-4 text-sm text-muted-foreground">
+              No tasks with dates yet. Add a task to see it on the timeline.
+            </p>
+          )}
         </div>
         <div className="px-4 pb-5 pt-1">
-          <button
-            className="flex items-center rounded bg-blue-primary px-3 py-2 text-white hover:bg-blue-600"
-            onClick={() => setIsModalNewTaskOpen(true)}
-          >
+          <Button onClick={() => setIsModalNewTaskOpen(true)}>
             Add New Task
-          </button>
+          </Button>
         </div>
       </div>
     </div>

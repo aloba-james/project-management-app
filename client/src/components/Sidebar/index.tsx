@@ -1,149 +1,171 @@
 "use client";
 
 import { useAppSelector } from "@/app/redux";
-import { useGetProjectsQuery } from "@/state/api";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import {
-  AlertCircle,
-  AlertOctagon,
-  AlertTriangle,
+  BrainCircuit,
   Briefcase,
-  ChevronDown,
-  ChevronUp,
+  Calendar,
+  FileText,
+  FolderKanban,
   Home,
-  Layers3,
-  Lock,
+  LayoutGrid,
   Search,
   Settings,
-  ShieldAlert,
-  User,
-  Users,
+  Sparkles,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
+import { useWorkspaces } from "@/hooks/useWorkspaces";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { useProjects } from "@/hooks/useProjects";
+import { useGetProjectsQuery } from "@/state/api";
 
+/**
+ * OS-style shell nav — supporting views, not the product center.
+ * Intent lives in the Goal bar.
+ */
 const Sidebar = () => {
-  const [showProjects, setShowProjects] = useState(true);
-  const [showPriority, setShowPriority] = useState(true);
-
-  const { data: projects } = useGetProjectsQuery();
-  console.log("🚀 ~ Sidebar ~ projects:", projects)
+  const { data: workspaces = [] } = useWorkspaces({ status: "Active" });
+  const activeWorkspaceId = useWorkspaceStore((s) => s.activeWorkspaceId);
+  const setActiveWorkspaceId = useWorkspaceStore((s) => s.setActiveWorkspaceId);
+  const activeWorkspace =
+    workspaces.find((w) => w.id === activeWorkspaceId) ?? workspaces[0];
+  const { data: projects = [] } = useProjects({
+    workspaceId: activeWorkspace?.id,
+  });
+  const { data: legacyProjects } = useGetProjectsQuery();
   const isSidebarCollapsed = useAppSelector(
-    (state) => state.global.isSidebarCollapsed
+    (state) => state.global.isSidebarCollapsed,
   );
 
-  const sidebarClassNames = `fixed flex flex-col h-full justify-between shadow-xl
-    transition-all duration-300 z-40 dark:bg-black overflow-y-auto bg-white 
-    ${isSidebarCollapsed ? "w-0 hidden" : "w-64"}
-    `;
+  const wsHref = activeWorkspace
+    ? `/workspaces/${activeWorkspace.id}`
+    : "/";
+  const firstBoardId = legacyProjects?.[0]?.id;
 
   return (
-    <div className={sidebarClassNames}>
-      <div className="flex h-full w-full flex-col justify-start">
-        {/* Top logo */}
-        <div className="z-50 flex min-h-[56px] w-64 items-center justify-between bg-white px-6">
-          <div className="text-xl font-bold text-gray-800 dark:text-white">
-            AKList
-          </div>
-          {/* Uncomment if you need collapse functionality */}
-          {/* <button
-            className="py-3"
-            onClick={() => dispatch(setIsSidebarCollapsed(!isSidebarCollapsed))}
-          >
-            <X className="h-6 w-6 text-gray-800 dark:text-white" />
-          </button> */}
-        </div>
+    <aside
+      className={cn(
+        "fixed z-40 flex h-full flex-col border-r bg-card transition-all duration-300",
+        isSidebarCollapsed ? "hidden w-0" : "w-64",
+      )}
+    >
+      <div className="flex min-h-[56px] items-center px-6">
+        <Link href="/" className="text-lg font-semibold tracking-tight">
+          Flox
+        </Link>
+      </div>
 
-        {/* Team */}
-        <div className="flex items-center gap-5 border-y-[1.5px] border-gray-200 px-8 py-4 dark:border-gray-700">
-          <Image src="/logo.png" alt="Logo" width={40} height={40} />
-          <div>
-            <h3 className="text-md font-bold tracking-wide dark:text-gray-200">
-              AK Team
-            </h3>
-            <div className="mt-1 flex items-start gap-2">
-              <Lock className="mt-[0.1rem] h-3 w-3 text-gray-500 dark:text-gray-400" />
-              <p className="text-xs text-gray-500">Private</p>
-            </div>
-          </div>
-        </div>
+      <div className="border-y px-6 py-4">
+        <p className="truncate text-sm font-medium">
+          {activeWorkspace?.name ?? "No workspace"}
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          AI workspace OS
+        </p>
+      </div>
 
-        {/* Navbar Links */}
-        <nav className="z-10 w-full">
-          <SidebarLink icon={Home} label="Home" href="/" />
-          <SidebarLink icon={Briefcase} label="Timeline" href="/timeline" />
+      <ScrollArea className="flex-1">
+        <nav className="flex flex-col gap-0.5 py-2">
+          <SidebarLink icon={Home} label="Home" href={wsHref} />
+          <SidebarLink icon={FolderKanban} label="Projects" href={wsHref} />
+          <SidebarLink icon={FileText} label="Documents" href="/search" />
+          <SidebarLink icon={Sparkles} label="Knowledge" href="/search" />
+          <SidebarLink icon={BrainCircuit} label="AI" href="/brain" />
           <SidebarLink icon={Search} label="Search" href="/search" />
-          <SidebarLink icon={Settings} label="Settings" href="/settings" />
-          <SidebarLink icon={User} label="Users" href="/users" />
-          <SidebarLink icon={Users} label="Teams" href="/teams" />
         </nav>
 
-        {/* Projects Links */}
-        <button
-          onClick={() => setShowProjects((prev) => !prev)}
-          className="flex w-full items-center justify-between px-8 py-3 text-gray-500"
-        >
-          <span>Projects</span>
-          {showProjects ? (
-            <ChevronUp className="h-5 w-5" />
-          ) : (
-            <ChevronDown className="h-5 w-5" />
-          )}
-        </button>
-
-        {/* Projects List */}
-        {showProjects &&
-          projects?.map((project) => (
+        <Separator className="my-2" />
+        <p className="px-6 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          Work views
+        </p>
+        <nav className="flex flex-col gap-0.5 pb-2">
+          <SidebarLink icon={Briefcase} label="Timeline / Gantt" href="/timeline" />
+          <SidebarLink icon={Calendar} label="Calendar" href="/calendar" />
+          {firstBoardId ? (
             <SidebarLink
-              key={project.id}
-              icon={Briefcase}
-              label={project.name}
-              href={`/projects/${project.id}`}
+              icon={LayoutGrid}
+              label="Board (drag & drop)"
+              href={`/projects/${firstBoardId}`}
             />
-          ))}
-
-        {/* Priority Links */}
-        <button
-          onClick={() => setShowPriority((prev) => !prev)}
-          className="flex w-full items-center justify-between px-8 py-3 text-gray-500"
-        >
-          <span>Priorities</span>
-          {showPriority ? (
-            <ChevronUp className="h-5 w-5" />
           ) : (
-            <ChevronDown className="h-5 w-5" />
+            <SidebarLink
+              icon={LayoutGrid}
+              label="Board (drag & drop)"
+              href="/timeline"
+            />
           )}
-        </button>
+          <SidebarLink icon={Settings} label="Settings" href="/settings" />
+        </nav>
 
-        {/* Priority List */}
-        {showPriority && (
+        {workspaces.length > 0 && (
           <>
-            <SidebarLink
-              icon={AlertCircle}
-              label="Urgent"
-              href="/priority/urgent"
-            />
-            <SidebarLink
-              icon={ShieldAlert}
-              label="High"
-              href="/priority/high"
-            />
-            <SidebarLink
-              icon={AlertTriangle}
-              label="Medium"
-              href="/priority/medium"
-            />
-            <SidebarLink icon={AlertOctagon} label="Low" href="/priority/low" />
-            <SidebarLink
-              icon={Layers3}
-              label="Backlog"
-              href="/priority/backlog"
-            />
+            <Separator className="my-2" />
+            <p className="px-6 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Workspaces
+            </p>
+            <div className="flex flex-col gap-0.5 pb-2">
+              {workspaces.slice(0, 8).map((ws) => (
+                <SidebarLink
+                  key={ws.id}
+                  icon={Home}
+                  label={ws.name}
+                  href={`/workspaces/${ws.id}`}
+                  onNavigate={() => setActiveWorkspaceId(ws.id)}
+                />
+              ))}
+            </div>
           </>
         )}
+
+        {projects.length > 0 && activeWorkspace && (
+          <>
+            <Separator className="my-2" />
+            <p className="px-6 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Projects
+            </p>
+            <div className="flex flex-col gap-0.5 pb-4">
+              {projects.slice(0, 10).map((p) => (
+                <SidebarLink
+                  key={p.id}
+                  icon={FolderKanban}
+                  label={p.name}
+                  href={`/workspaces/${activeWorkspace.id}/projects/${p.id}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {legacyProjects && legacyProjects.length > 0 && (
+          <>
+            <Separator className="my-2" />
+            <p className="px-6 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Task boards
+            </p>
+            <div className="flex flex-col gap-0.5 pb-4">
+              {legacyProjects.slice(0, 10).map((p) => (
+                <SidebarLink
+                  key={p.id}
+                  icon={LayoutGrid}
+                  label={p.name}
+                  href={`/projects/${p.id}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </ScrollArea>
+
+      <div className="border-t px-6 py-4 text-xs text-muted-foreground">
+        Navigate by goal — use the bar below.
       </div>
-    </div>
+    </aside>
   );
 };
 
@@ -151,29 +173,42 @@ interface SidebarLinkProps {
   href: string;
   icon: React.ElementType;
   label: string;
+  onNavigate?: () => void;
 }
 
-const SidebarLink = ({ href, icon: Icon, label }: SidebarLinkProps) => {
+const SidebarLink = ({
+  href,
+  icon: Icon,
+  label,
+  onNavigate,
+}: SidebarLinkProps) => {
   const pathname = usePathname();
   const isActive =
-    pathname === href || (pathname === "/" && href === "/dashboard");
+    pathname === href ||
+    (href !== "/" && pathname.startsWith(href + "/"));
 
   return (
-    <Link href={href} className="w-full">
-      <div
-        className={`relative flex cursor-pointer items-center gap-3 px-6 py-4 transition-colors hover:bg-gray-100 dark:hover:bg-gray-600 ${
-          isActive ? "bg-gray-100 dark:bg-gray-600" : ""
-        }`}
-      >
-        <Icon className="h-6 w-6 text-gray-800 dark:text-gray-100" />
+    <Button
+      asChild
+      variant="ghost"
+      className={cn(
+        "relative h-auto w-full justify-start gap-3 rounded-none px-6 py-2.5 font-medium",
+        isActive && "bg-accent text-accent-foreground",
+      )}
+    >
+      <Link href={href} onClick={onNavigate}>
         {isActive && (
-          <div className="absolute left-0 top-0 h-full w-[5px] bg-blue-500" />
+          <span className="absolute left-0 top-0 h-full w-1 rounded-r bg-foreground" />
         )}
-        <span className="font-medium text-gray-800 dark:text-gray-100">
-          {label}
-        </span>
-      </div>
-    </Link>
+        <Icon
+          className={cn(
+            "h-4 w-4",
+            isActive ? "text-foreground" : "text-muted-foreground",
+          )}
+        />
+        <span className="truncate">{label}</span>
+      </Link>
+    </Button>
   );
 };
 

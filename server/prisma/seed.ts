@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+
+dotenv.config({ path: path.join(__dirname, "..", ".env") });
+
 const prisma = new PrismaClient();
 
 async function deleteAllData(orderedFileNames: string[]) {
@@ -42,9 +46,26 @@ async function main() {
     const modelName = path.basename(fileName, path.extname(fileName));
     const model: any = prisma[modelName as keyof typeof prisma];
 
+    // Seed JSON is anchored in 2023–2024; shift into the current year window
+    // so calendar/timeline demos stay populated.
+    const anchorYear = 2023;
+    const yearShift = new Date().getFullYear() - anchorYear;
+
+    const shiftDate = (value: unknown) => {
+      if (typeof value !== "string" || !value) return value;
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      date.setFullYear(date.getFullYear() + yearShift);
+      return date.toISOString();
+    };
+
     try {
       for (const data of jsonData) {
-        await model.create({ data });
+        const record = { ...data } as Record<string, unknown>;
+        for (const key of ["startDate", "dueDate", "endDate"]) {
+          if (key in record) record[key] = shiftDate(record[key]);
+        }
+        await model.create({ data: record });
       }
       console.log(`Seeded ${modelName} with data from ${fileName}`);
     } catch (error) {

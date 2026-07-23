@@ -1,10 +1,7 @@
+"use client";
 
-import Project from "./projects/[id]/page";
+import { HomeCommandCenter } from "@/components/flox/HomeCommandCenter";
 
-export default function Home() {
-  return (
-    <main className="flex flex-wrap w-full min-h-screen flex-col items-center justify-between p-24">
-     <Project params={{id:"1"}} />
-    </main>
-  );
+export default function HomePage() {
+  return <HomeCommandCenter />;
 }

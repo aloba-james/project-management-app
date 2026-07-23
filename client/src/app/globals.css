@@ -2,21 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    --radius: 0.5rem;
 
-html,
-body,
-#root,
-.app {
-  height: 100%;
-  width: 100%;
-  @apply text-sm;
-  @apply bg-white;
-  @apply dark:bg-black;
+    --color-bg: #f9fafb;
+    --color-surface: #ffffff;
+    --color-surface-muted: #f3f4f6;
+    --color-border: #e5e7eb;
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-danger: #dc2626;
+    --color-danger-hover: #b91c1c;
+  }
+
+  .dark {
+    --background: 222 20% 7%;
+    --foreground: 210 40% 96%;
+    --card: 220 15% 12%;
+    --card-foreground: 210 40% 96%;
+    --popover: 220 15% 12%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 19% 20%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 19% 20%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 19% 20%;
+    --accent-foreground: 210 40% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 19% 22%;
+    --input: 217 19% 22%;
+    --ring: 217 91% 60%;
+
+    --color-bg: #0f1115;
+    --color-surface: #1a1d23;
+    --color-surface-muted: #2a2e37;
+    --color-border: #2d3135;
+    --color-text: #f3f4f6;
+    --color-text-muted: #9ca3af;
+    --color-primary: #3b82f6;
+    --color-primary-hover: #60a5fa;
+    --color-danger: #ef4444;
+    --color-danger-hover: #f87171;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root,
+  .app {
+    height: 100%;
+    width: 100%;
+    @apply bg-background text-sm text-foreground;
+  }
 }
 
 /* TIMELINE STYLING */
